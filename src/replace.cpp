@@ -78,12 +78,14 @@ void replace (const std::string olddrhfile, const std::string simresf){
             std::string replace1 = "(" + rvandval[1] + " ";
             std::string replace2 = " " + rvandval[1] + " ";
             std::string replace3 = rvandval[1] + " ";
+            std::string replace4 = " " + rvandval[1];
         
         
         
             boost::replace_all(line2, target1, replace1);
             boost::replace_all(line2, target2, replace2);
             boost::replace_all(line2, target3, replace3);
+            boost::replace_all(line2, target4, replace4);
             
         }
         nudrhfile << line2 << endl;
