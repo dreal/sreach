@@ -82,6 +82,7 @@ void replace (string const & olddrhfile, string const & simresf){
             string target1 = "(" + rvandval[0] + " ";
             string target2 = " " + rvandval[0] + " ";
             string target3 = rvandval[0] + " ";
+            string target4 = " " + rvandval[0];
             string replace1 = "(" + rvandval[1] + " ";
             string replace2 = " " + rvandval[1] + " ";
             string replace3 = rvandval[1] + " ";
@@ -92,7 +93,7 @@ void replace (string const & olddrhfile, string const & simresf){
             boost::replace_all(line2, target1, replace1);
             boost::replace_all(line2, target2, replace2);
             boost::replace_all(line2, target3, replace3);
-//            boost::replace_all(line2, target4, replace4);
+            boost::replace_all(line2, target4, replace4);
 
         }
         nudrhfile << line2 << endl;
