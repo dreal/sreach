@@ -88,11 +88,7 @@ public:
   static const unsigned int DONE = 1;
 
   // no default constructor
-  Test(string v) {
-    args = v;
-    out = NOTDONE;
-    samples = 0;
-    successes = 0;
+  Test(string v) : args(v), out(NOTDONE), samples(0), successes(0) {
   }
 
   virtual void init () =0;
@@ -119,7 +115,7 @@ public:
   static const unsigned int NULLHYP = 2;
   static const unsigned int ALTHYP  = 1;
 
-  HTest(string v): Test(v) {
+  HTest(string v): Test(v), theta(0.0) {
   }
 
   void printResult () {
@@ -148,7 +144,7 @@ protected:
 
 public:
 
-  Estim(string v) : Test(v){
+  Estim(string v) : Test(v), delta(0.0), c(0.0), estimate(0.0){
   }
 
   // defined later because it uses a method from class CHB
@@ -251,7 +247,7 @@ private:
   double alpha, beta;		// Beta prior parameters
 
 public:
-  BayesEstim(string v): Estim(v) {
+  BayesEstim(string v): Estim(v), alpha(0.0), beta(0.0) {
   }
 
   void init() {
@@ -346,7 +342,7 @@ private:
   double pi;                      // 3.14159
 
 public:
-  Lai (string v) : HTest(v) {
+  Lai (string v) : HTest(v), cpo(0.0), r(NULL), pi(0.0) {
   }
 
   void init () {
@@ -452,7 +448,7 @@ private:
   double alpha, beta;		// Beta prior parameters
 
 public:
-  BFT (string v) : HTest(v) {
+  BFT (string v) : HTest(v), T(0.0), podds(0.0), alpha(0.0), beta(0.0) {
   }
 
   void init () {	// initialize test parameters
@@ -548,7 +544,7 @@ private:
   double theta1, theta2;	// theta1 < theta2 (indifference region)
 
 public:
-  BFTI (string v) : HTest(v) {
+  BFTI (string v) : HTest(v), T(0.0), podds(0.0), alpha(0.0), beta(0.0), delta(0.0), theta1(0.0), theta2(0.0) {
   }
 
   void init () {		// initialize test parameters
@@ -647,7 +643,7 @@ private:
   double T;			// ratio threshold
 
 public:
-  SPRT (string v) : HTest(v) {
+  SPRT (string v) : HTest(v), delta(0.0), theta1(0.0), theta2(0.0), T(0.0) {
   }
 
   void init () {		// initialize test parameters
