@@ -41,15 +41,25 @@
 #include <boost/regex.hpp>
 #include "simulation.hpp"
 #include <cstdlib>
-using namespace std;
 
-void simulation (const std::string distrfile){
-  
+using std::bernoulli_distribution;
+using std::cout;
+using std::default_random_engine;
+using std::endl;
+using std::exponential_distribution;
+using std::ifstream;
+using std::normal_distribution;
+using std::ofstream;
+using std::string;
+using std::uniform_real_distribution;
+
+void simulation (string const & distrfile){
+
   ifstream rvfile (distrfile); // the random variables file
-  
+
   ofstream assignfile ("simres.txt"); // output the simulation results for rvs
- 
- 
+
+
   if (rvfile.is_open())
   {
     string s, sre, line2;
@@ -57,12 +67,12 @@ void simulation (const std::string distrfile){
     boost::cmatch matches;
 
     while (getline (rvfile, line2))
-    { 
+    {
       string distr = line2.substr(0,1);
 
       if (distr == "B")
-      { 
-          
+      {
+
           sre = "(B)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*";
           try
           {
@@ -77,16 +87,16 @@ void simulation (const std::string distrfile){
           }
           if (boost::regex_match(line2.c_str(), matches, re))
           {
-              
+
               string paraStr = string() + matches[4];
               double para = atof(paraStr.c_str());//parameter for the bernoulli distribution
-	  
+
               default_random_engine generator(time(0));
               bernoulli_distribution distribution(para);
               double x = double(distribution(generator));
               assignfile << matches[8] << " " << x << endl;
           }else {cout << "Does not match!" << endl;}
-	
+
       }
       else if (distr == "E")
       {
@@ -159,16 +169,16 @@ void simulation (const std::string distrfile){
               assignfile << matches[12] << " " << x << endl;
           }else {cout << "Does not match!" << endl;}
 
-      
+
       }
     }
     rvfile.close();
   }
   else
   cout << "Unable to open the distribution file. " << endl;
-    
-    
-  
+
+
+
     assignfile.close();
 
 }

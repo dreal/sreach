@@ -29,12 +29,8 @@
  * inability to use, this software or its associated documentation, even if the
  * authors have been advised of the possibility of those damages.
  * ***********************************************************************************************/
-
-//  replace.hpp
-#ifndef _replace_hpp
-#define _replace_hpp
-
-std::vector<std::string> split(const std::string s);
-void replace (const std::string olddrhfile, const std::string simresfile);
-
-#endif
+#pragma once
+#include <vector>
+#include <string>
+std::vector<std::string> split(std::string const & s);
+void replace (std::string const & olddrhfile, std::string const & simresfile);

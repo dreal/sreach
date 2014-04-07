@@ -30,11 +30,6 @@
  * authors have been advised of the possibility of those damages.
  * ***********************************************************************************************/
 
-//  simulation.hpp
-
-#ifndef _simulation_hpp
-#define _simulation_hpp
-
-void simulation (const std::string distrfile);
-
-#endif
+#pragma once
+#include <string>
+void simulation (std::string const & distrfile);

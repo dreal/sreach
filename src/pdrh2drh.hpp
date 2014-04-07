@@ -29,14 +29,6 @@
  * inability to use, this software or its associated documentation, even if the
  * authors have been advised of the possibility of those damages.
  * ***********************************************************************************************/
-
-
-//
-//  pdrh2drh.hpp
-
-#ifndef _pdrh2drh_hpp
-#define _pdrh2drh_hpp
-
-void pdrh2drh (const std::string modelfile);
-
-#endif
+#pragma once
+#include <string>
+void pdrh2drh (std::string const & modelfile);

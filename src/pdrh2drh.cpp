@@ -41,9 +41,13 @@
 #include <string>
 #include "pdrh2drh.hpp"
 
-using namespace std;
+using std::string;
+using std::ifstream;
+using std::ofstream;
+using std::cout;
+using std::endl;
 
-void pdrh2drh (const std::string modelfile) {
+void pdrh2drh (string const & modelfile) {
   string line;
   ifstream myfile1 (modelfile);
   ofstream myfile2 ("rv.txt");
@@ -52,14 +56,14 @@ void pdrh2drh (const std::string modelfile) {
   {
     while (getline (myfile1, line))
     {
-      
+
       string str = line.substr(0, 2);
       if (str == "B("| str =="N("| str =="U("| str =="E(")
       {
-	myfile2 << line << '\n';
+        myfile2 << line << '\n';
       }
       else{
-	myfile3 << line << '\n';
+        myfile3 << line << '\n';
       }
     }
     myfile1.close();

@@ -39,13 +39,20 @@
 #include <boost/tokenizer.hpp>
 #include "replace.hpp"
 #include <cstdlib>
-using namespace std;
 
-std::vector<std::string> split(const std::string s)
+using std::string;
+using std::vector;
+using std::ifstream;
+using std::ofstream;
+using std::ios;
+using std::cout;
+using std::endl;
+
+vector<string> split(string const & s)
 {
-    std::vector<std::string> rvandval;
+    vector<string> rvandval;
     typedef boost::tokenizer<boost::char_separator<char> > tok_t;
-    
+
     boost::char_separator<char> sep(" ", "", boost::keep_empty_tokens);
     tok_t tok(s, sep);
     for(tok_t::iterator i = tok.begin(); i!=tok.end(); ++i)
@@ -53,12 +60,12 @@ std::vector<std::string> split(const std::string s)
     return rvandval;
 }
 
-void replace (const std::string olddrhfile, const std::string simresf){
-    
+void replace (string const & olddrhfile, string const & simresf){
+
   ifstream drhfile (olddrhfile); // the .drh file
   ifstream simresfile (simresf); // the random variables and their values file
   ofstream nudrhfile ("numodel.drh");
- 
+
 
   if (simresfile.is_open() && drhfile.is_open())
   {
@@ -66,27 +73,27 @@ void replace (const std::string olddrhfile, const std::string simresf){
 
     while (getline (drhfile, line2))
     {
-        
+
         while (getline (simresfile, line1))
         {
-            
-            std::vector<std::string> rvandval = split(line1);
-            
-            std::string target1 = "(" + rvandval[0] + " ";
-            std::string target2 = " " + rvandval[0] + " ";
-            std::string target3 = rvandval[0] + " ";
-            std::string replace1 = "(" + rvandval[1] + " ";
-            std::string replace2 = " " + rvandval[1] + " ";
-            std::string replace3 = rvandval[1] + " ";
-            std::string replace4 = " " + rvandval[1];
-        
-        
-        
+
+            vector<string> rvandval = split(line1);
+
+            string target1 = "(" + rvandval[0] + " ";
+            string target2 = " " + rvandval[0] + " ";
+            string target3 = rvandval[0] + " ";
+            string replace1 = "(" + rvandval[1] + " ";
+            string replace2 = " " + rvandval[1] + " ";
+            string replace3 = rvandval[1] + " ";
+            string replace4 = " " + rvandval[1];
+
+
+
             boost::replace_all(line2, target1, replace1);
             boost::replace_all(line2, target2, replace2);
             boost::replace_all(line2, target3, replace3);
-            boost::replace_all(line2, target4, replace4);
-            
+//            boost::replace_all(line2, target4, replace4);
+
         }
         nudrhfile << line2 << endl;
         simresfile.clear();
@@ -94,7 +101,7 @@ void replace (const std::string olddrhfile, const std::string simresf){
     }
     drhfile.close();
     simresfile.close();
-    
+
   }
   else{
       cout << "Unable to open the simluation result file or the model file. " << endl;
