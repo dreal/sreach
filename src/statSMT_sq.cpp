@@ -230,7 +230,12 @@ void Estim::printResult (){
         // if called by a CHB object, print the sample size
         // of the Chernoff-Hoeffding bound, as well
         if (Iam.find("CHB",0) != string::npos) {
-          cout << ", C-H bound = " << dynamic_cast<CHB*>(this)->get_CH_bound();
+          if (CHB * ptr = dynamic_cast<CHB*>(this)) {
+            cout << ", C-H bound = " << ptr->get_CH_bound();
+          } else {
+            cerr << "dynamic_cast<CHB*> failed." << endl;
+            abort();
+          }
         }
         cout << endl; break;
     }
