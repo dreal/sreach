@@ -85,18 +85,20 @@ void simulation (string const & distrfile){
               cout << sre << " is not a valid regular expression: \""
               << e.what() << "\"" << endl;
           }
-          if (boost::regex_match(line2.c_str(), matches, re))
-          {
+          try {
+              if (boost::regex_match(line2.c_str(), matches, re)) {
 
-              string paraStr = string() + matches[4];
-              double para = atof(paraStr.c_str());//parameter for the bernoulli distribution
+                  string paraStr = string() + matches[4];
+                  double para = atof(paraStr.c_str());//parameter for the bernoulli distribution
 
-              default_random_engine generator(time(0));
-              bernoulli_distribution distribution(para);
-              double x = double(distribution(generator));
-              assignfile << matches[8] << " " << x << endl;
-          }else {cout << "Does not match!" << endl;}
-
+                  default_random_engine generator(time(0));
+                  bernoulli_distribution distribution(para);
+                  double x = double(distribution(generator));
+                  assignfile << matches[8] << " " << x << endl;
+              }else {cout << "Does not match!" << endl;}
+          } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
+              cout << "regex_match failed!" << endl;
+          }
       }
       else if (distr == "E")
       {
@@ -110,15 +112,19 @@ void simulation (string const & distrfile){
               cout << sre << " is not a valid regular expression: \""
               << e.what() << "\"" << endl;
           }
-          if (boost::regex_match(line2.c_str(), matches, re))
-          {
-              string paraStr = string() + matches[4];
-              double para = atof(paraStr.c_str());
-              default_random_engine generator(time(0));
-              exponential_distribution<double> distribution(para);
-              double x = distribution(generator);
-              assignfile << matches[8] << " " << x << endl;
-          }else {cout << "Does not match!" << endl;}
+          try {
+              if (boost::regex_match(line2.c_str(), matches, re)) {
+                  string paraStr = string() + matches[4];
+                  double para = atof(paraStr.c_str());
+                  default_random_engine generator(time(0));
+                  exponential_distribution<double> distribution(para);
+                  double x = distribution(generator);
+                  assignfile << matches[8] << " " << x << endl;
+              } else {cout << "Does not match!" << endl;}
+          } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
+              cout << "regex_match failed!" << endl;
+          }
+
       }
       else if (distr == "U")
       {
@@ -132,18 +138,20 @@ void simulation (string const & distrfile){
               cout << sre << " is not a valid regular expression: \""
               << e.what() << "\"" << endl;
           }
-          if (boost::regex_match(line2.c_str(), matches, re))
-          {
-              string paraStr1 = string() + matches[4];
-              double para1 = atof(paraStr1.c_str());
-              string paraStr2 = string() + matches[8];
-              double para2 =atof(paraStr2.c_str());
-              default_random_engine generator(time(0));
-              uniform_real_distribution<double> distribution(para1, para2);
-              double x = distribution(generator);
-              assignfile << matches[12] << " " << x << endl;
-          }else {cout << "Does not match!" << endl;}
-
+          try {
+              if (boost::regex_match(line2.c_str(), matches, re)) {
+                  string paraStr1 = string() + matches[4];
+                  double para1 = atof(paraStr1.c_str());
+                  string paraStr2 = string() + matches[8];
+                  double para2 =atof(paraStr2.c_str());
+                  default_random_engine generator(time(0));
+                  uniform_real_distribution<double> distribution(para1, para2);
+                  double x = distribution(generator);
+                  assignfile << matches[12] << " " << x << endl;
+              } else {cout << "Does not match!" << endl; }
+          } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
+              cout << "regex_match failed!" << endl;
+          }
       }
       else if (distr == "N")
       {
@@ -157,19 +165,20 @@ void simulation (string const & distrfile){
               cout << sre << " is not a valid regular expression: \""
               << e.what() << "\"" << endl;
           }
-          if (boost::regex_match(line2.c_str(), matches, re))
-          {
-              string paraStr1 = string() + matches[4];
-              double para1 = atof(paraStr1.c_str());
-              string paraStr2 = string() + matches[8];
-              double para2 =atof(paraStr2.c_str());
-              default_random_engine generator(time(0));
-              normal_distribution<double> distribution(para1, para2);
-              double x = distribution(generator);
-              assignfile << matches[12] << " " << x << endl;
-          }else {cout << "Does not match!" << endl;}
-
-
+          try {
+              if (boost::regex_match(line2.c_str(), matches, re)) {
+                  string paraStr1 = string() + matches[4];
+                  double para1 = atof(paraStr1.c_str());
+                  string paraStr2 = string() + matches[8];
+                  double para2 =atof(paraStr2.c_str());
+                  default_random_engine generator(time(0));
+                  normal_distribution<double> distribution(para1, para2);
+                  double x = distribution(generator);
+                  assignfile << matches[12] << " " << x << endl;
+              } else {cout << "Does not match!" << endl; }
+          } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
+              cout << "regex_match failed!" << endl;
+          }
       }
     }
     rvfile.close();
