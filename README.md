@@ -1,3 +1,8 @@
+<a href="https://scan.coverity.com/projects/1715">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/1715/badge.svg"/>
+</a>
+
 ``statsmt_sq`` is a combination of dreal/dreach and statistical analyzing methods (sequential version).
 
 Installation
