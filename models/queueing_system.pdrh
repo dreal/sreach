@@ -1,0 +1,49 @@
+// hybrid model of a queueing system 
+// receiving jobs at a rate rec, and
+// dispatching them at a rate B.
+// the max size of queue is denoted as qmax.
+// the current size of queue is denoted as q.
+
+#define B 1 // bandwidth
+#define qmax 10
+
+
+[-1, 12] q;
+[0, 3] t;
+
+U(0, 5) rec;
+E(0.3) q0;
+
+{ mode 1; // empty
+
+  invt:
+        (q <= qmax); 
+  flow:
+        d/dt[q] = 0;
+  jump:
+        (rec > B) ==> @2 (q' = q);
+}
+{ mode 2; // normal
+
+  invt:
+        
+  flow:
+        d/dt[q] = rec - B;
+  jump:
+        (and (q >= qmax) (rec > B)) ==> @3 (q' = q);
+	(and (q <= 0) (rec < B)) ==> @1 (q' = q);
+}
+{ mode 3; // full
+
+  invt:
+        
+  flow:
+        d/dt[q] = 0;
+  jump:
+        (rec < B) ==> @2 (q' = q);
+}
+init:
+@1	(q = q0);
+
+goal:
+@1	(and (q <= 11) (q >= 0));
