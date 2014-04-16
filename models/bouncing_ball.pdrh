@@ -1,0 +1,39 @@
+
+//#define K 0.9 // dissipation factor \in (0, 1)
+// add initial height for the ball
+//#define H0 (H0_0 + 1)
+//#define H0 10
+// add the initial velocity of the ball
+//#define v0 0
+
+[0, 15] x; // the height of the ball
+[9.8] g; // the gravity 
+[-18, 18] v; // velocity
+[0, 3] time; 
+
+U(0, 1) K;
+// cpu time 4.434+2.353, 56/73
+N(0, 1) v0;
+// cpu time 2.827+1.460, 37/50
+//E(0.01) H0_0;
+U(8, 12) H0;
+// cpu time 2.561+1.263, 30/42
+
+
+
+
+{ mode 1;
+
+  invt:
+        (x >= 0);
+  flow:
+        d/dt[x] = v;
+        d/dt[v] = -g;
+  jump:
+        (x = 0) ==> @1 (and (x' = x) (v' = - K * v));
+}
+init:
+@1	(and (x = H0) (v = v0));
+
+goal:
+@1	(and (x >= 0.35) (v >= -18));
