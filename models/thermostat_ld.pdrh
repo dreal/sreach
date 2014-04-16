@@ -1,0 +1,33 @@
+
+#define thr1 20 // temperature threshold 1
+#define thr2 22 // tmp thres 2
+#define T0 20 // init tmp of room
+#define vh 5 // velocity of heating
+#define D 0.1 // coefficient for the linear decrease
+
+[10, 30] x; // room tmp
+[0, 3] time;
+
+{ mode 1;
+
+  invt:
+        (x >= thr1);
+  flow:
+        d/dt[x] = 0 - D * x;
+  jump:
+        (x < thr1) ==> @2 (x' = x);
+}
+{ mode 2;
+
+  invt:
+        (x <= thr2);
+  flow:
+        d/dt[x] = vh - D * x;
+  jump:
+        (x > thr2) ==> @1 (x' = x);
+}
+init:
+@1	(x = T0);
+
+goal:
+@1	(x <= thr2);
