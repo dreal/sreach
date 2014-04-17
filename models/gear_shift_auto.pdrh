@@ -25,8 +25,9 @@
 #define thre3 20 // threshold 3 for shifting
 #define thre4 25 // threshold 4 for shifting
 #define pi 3.1416
- 
-[0, 1] v; // throttle
+
+// throttle
+U(0, 1) v;
 [0, 5] gear; // necessary?
 [0, 1000] x1;
 [0, 100] x2;
