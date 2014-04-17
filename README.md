@@ -25,7 +25,7 @@ Required Packages
 Compile
 -------
 
-    make build
+    mkdir build
     cd build
     cmake ../src
     make
