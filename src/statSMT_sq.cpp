@@ -822,8 +822,7 @@ int main (int argc, char **argv) {
     // prepare some names which may be used later before entering the loop
     std::string drhfile("model_w_define.drh");
     std::string simresfile("simres.txt"); // name of simulation result file
-    std::string nusuffix = "_" + string(argv[4]) + "_0.output";
-    std::string outputfilenam = "numodel" + nusuffix; // name of the output file from dReach
+    
 
 
     // start generating sample drh models for dReach
@@ -851,12 +850,36 @@ int main (int argc, char **argv) {
         }
 
 
-        /* the dReach will generate a .output file with the name <model_name>_<k_value>_0.output;
-         if the model is sat, the .output file only contains "sat";
-         elseif the model is unsat, it only contains "unsat";
-         else the given k value is not ok. */
-
+        /* the dReach will generate a .output file with the name <model_name>_<k_value>_i.output, where i starts from 0, for
+         each possible path. It stops when it finds a sat path j, and the
+         <model_name>_<k_value>_i.output file gives the final answer.
+         If all the paths are unsat, the final .output one returns unsat.
+         */
+        
+        // find out the final .output file returning the answer
+        int dReachi = 0; // the ith possiable path
+        std::string nusuffix1;
+        nusuffix1.assign("_" + string(argv[4]) + "_");
+        std::string outputfilenam;
+        outputfilenam.assign("numodel" + nusuffix1 + "0.output");
         ifstream smtresfile (outputfilenam);
+        std::string nusuffix2;
+        
+        while (smtresfile.is_open()) {
+            dReachi++;
+            smtresfile.close();
+            smtresfile.clear();
+            nusuffix2.assign(std::to_string(dReachi) + ".output");
+            outputfilenam.assign("numodel" + nusuffix1 + nusuffix2);
+            smtresfile.open(outputfilenam);
+        }
+        smtresfile.close();
+        smtresfile.clear();
+        
+        dReachi = dReachi - 1;
+        nusuffix2.assign(std::to_string(dReachi) + ".output");
+        outputfilenam.assign("numodel" + nusuffix1 + nusuffix2);
+        smtresfile.open(outputfilenam);
 
         if (smtresfile.is_open()) {
             std::string line;
