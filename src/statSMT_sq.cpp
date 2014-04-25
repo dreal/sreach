@@ -710,12 +710,13 @@ public:
 int main (int argc, char **argv) {
 
     const string USAGE =
-        "\nUsage: statsmt <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model> \n\n"
+        "\nUsage: statsmt <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model> <precision>\n\n"
         "where:\n"
         "      <testfile> is a text file containing a sequence of test specifications, give the path to it;\n"
         "      <prob_drh-modelfile> is the file name and path of the probilistical extension model of the dreach model;\n"
         "      <dReach> is the dReach executable, give the path to it;\n"
-        "   <k-unfolding_steps_for_dreach_model> is the given steps to unfold the probabilistic hybrid system.\n\n"
+        "   <k-unfolding_steps_for_dreach_model> is the given steps to unfold the probabilistic hybrid system;\n"
+        "   <precision> indicates the delta value for dReach.\n\n"
         "Available test specifications: \n\n"
         "Hypothesis test:\n"
         " Lai's test: Lai <theta> <cost per sample>\n"
@@ -743,7 +744,7 @@ int main (int argc, char **argv) {
     vector<Test *> myTests;	// list of tests to perform
 
 
-    if (argc != 5) {
+    if (argc != 6) {
         cout << USAGE << endl;
         exit(EXIT_FAILURE);
     }
@@ -805,17 +806,18 @@ int main (int argc, char **argv) {
     std::string simfile("rv.txt");
 
     // timing stuff
-    //time_t start = time(NULL);
-    //clock_t tic = clock();
+    time_t start = time(NULL);
+    clock_t tic = clock();
 
 
-    /** for the third and forth arguments: **/
+    /** for the third,forth, and fifth arguments: **/
     // build the command lines for dReach
     // still wait for the drh model after sampling according to the distributions
     std::string dReachpath = string(argv[3]) + " ";
-    std::string dReachopt = "-k";
+    std::string dReachopt1 = "-k";
     std::string dReachpara = " " + string(argv[4]);
-    std::string dReachcomm = dReachpath + dReachopt + dReachpara;
+    std::string dReachopt2 = " -precision=" + string(argv[5]);
+    std::string dReachcomm = dReachpath + dReachopt1 + dReachpara + dReachopt2;
     std::string calldReach = dReachcomm + " numodel.drh";
 
 
@@ -884,6 +886,7 @@ int main (int argc, char **argv) {
         if (smtresfile.is_open()) {
             std::string line;
             getline(smtresfile, line);
+            /*
             if (line == "sat") {
                 satnum++;
             } else if (line == "unsat") {
@@ -891,6 +894,12 @@ int main (int argc, char **argv) {
             } else {
                 cout << "improper k (unfolding steps) value, please give a different one" << endl;
                 exit (EXIT_FAILURE);
+            }
+             */
+            if (line == "sat") {
+                satnum++;
+            } else {
+                unsatnum++;
             }
             smtresfile.close();
         }else {
@@ -917,9 +926,9 @@ int main (int argc, char **argv) {
 
 
 
-  //cout << "Elapsed cpu time: " << (clock() - tic) / (double)CLOCKS_PER_SEC << endl;
+  cout << "Elapsed cpu time: " << (clock() - tic) / (double)CLOCKS_PER_SEC << endl;
 
-  //cout << "Elapsed wall time: " << (time(NULL) - start) << endl;
+  cout << "Elapsed wall time: " << (time(NULL) - start) << endl;
 
   exit(EXIT_SUCCESS);
 }
