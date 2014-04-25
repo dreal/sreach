@@ -122,5 +122,5 @@ add_library(pdrh2drh pdrh2drh.cpp)
 set(STATSMT_LIBS ${STATSMT_LIBS} pdrh2drh)
 
 set(EXTRA_LIBS ${STATSMT_LIBS} ${EXTRA_LIBS})
-add_executable(statsmt_sq statSMT_sq.cpp)
-target_link_libraries(statsmt_sq ${EXTRA_LIBS})
+add_executable(sreach statSMT_sq.cpp)
+target_link_libraries(sreach ${EXTRA_LIBS})
