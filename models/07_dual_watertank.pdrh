@@ -1,36 +1,17 @@
-// The two tank system, consists of two tanks containing water. Both tanks are leaking at 
-// a constant rate. Water is added to the system at a constant rate through a hose, which 
-// at any point in time is dedicated to either one tank or the other. It is assumed that 
-// the hose can switch between the tanks instantaneously. 
-
-// For i = 1, 2, let x_i denote the volume of water in Tank i and v_i > 0 denote the 
-// constant flow of water out of Tank i. Let w denote the constant flow of water into the 
-// system. The objective is to keep the water volumes above r_1 and r_2, respectively, 
-// assuming that the water volumes are above r_1 and r_2 initially. This is to be achieved 
-// by a controller that switches the inflow to Tank 1 whenever x_1 ≤ r_1 and to Tank 2 
-// whenever x_2 ≤ r_2.
-
-//#define v1 0.8 // the constant flow of water out of tank 1
 N(0.5, 0.005) v1;
-//#define v2 1.2 // the constant flow of water out of tank 1
 N(0.8, 0.005) v2;
-//#define r1 10 // thres vol for tank 1
 U(10, 15) r1;
-//#define r2 10 // thres vol for tank 2
 U(15, 20) r2;
-//#define w 2 // the constant flow of water into the system
 B(0.9) w0;
 #define w (w0 + 1)
-//#define H1 15 // init vol of water in tank 1
-//#define H2 10 // init vol of water in tank 2
 
 
-[0, 50] x1; // volume of water of tank 1
-[0, 50] x2; // vol of water of tank 2
+[0, 50] x1;
+[0, 50] x2; 
 [0, 3] time;
 
 
-{ mode 1; //tank 1
+{ mode 1;
 
   invt:
         (x2 >= r2);
@@ -52,7 +33,6 @@ B(0.9) w0;
 }
 init:
 @1	(and (x1 >= r1) (x2 >= r2));
-//@2	(and (x1 >= r1) (x2 >= r2));
 
 goal:
 @2	(and (x1 >= r1) (x2 >= r2));
