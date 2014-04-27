@@ -1,7 +1,5 @@
 #define a 2.0
 #define b 3.0
-//#define xthr1 19
-//#define xthr2 21
 #define ythr 10
 
 U(18, 20) xthr1;
