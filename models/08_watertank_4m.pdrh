@@ -1,72 +1,52 @@
-// one tank, 4 modes: pump off, wait to off, wait to on, pump on 
-// goal: prevent the tank from emptying or filling up
-// system parameters
-// max: max volume allowed
-// min: min volume allowed 
-// lambda: pump-on inflow
-// mu: constant outflow
-// y: current volume of water in the tank
-// theta: delay between command is sent to pump and the time it is executed
 
-
-//#define mu 10 
 N(10, 0.0001) mu;
-//#define lambda 30 
 N(30, 0.0001) lambda;
-//#define max 70
 U(68, 72) max;
-//#define min 30
 U(28, 32) min;
-//#define theta 0.5 
 N(0.5, 0.0001) theta;
-//#define H0 45 // init vol of water in tank 
-
-
 U(40, 50) H0;
 U(0.1, 2) theta;
 
 
-[0, 100] y; // volume of water of tank
+[0, 100] y;
 [0, 3] time;
 [0, 1000] tau;
 
 
-{ mode 1; //pump off
+{ mode 1;
 
   invt:
-        //(y <= max);
-	//(y >= min);
+        
   flow:
         d/dt[y] = 0 - mu;
 	d/dt[tau] = 1.0;
   jump:
         (y <= min) ==> @2 (and (tau' = 0) (y' = y));
 }
-{ mode 2; //wait to on
+{ mode 2;
 
   invt:
-        //(y >= 0);
+
   flow:
         d/dt[y] = 0 - mu;
 	d/dt[tau] = 1.0;
   jump:
         (tau >= theta) ==> @3 (and (tau' = tau) (y' = y));
 }
-{ mode 3; //pump on
+{ mode 3; 
 
   invt:
-        //(y <= max); 
-	//(y >= min);
+
   flow:
         d/dt[y] = lambda - mu;
 	d/dt[tau] = 1.0;
   jump:
         (y >= max) ==> @4 (and (y' = y) (tau' = 0));
 }
-{ mode 4; //wait to off
+{ mode 4; 
 
   invt:
-        //(y <= 60);
+
   flow:
         d/dt[y] = lambda - mu;
 	d/dt[tau] = 1.0;
@@ -78,4 +58,4 @@ init:
 
 goal:
 @4	(and (y >= (min - 5)) (y <= (max + 5)));
-//@3	(and (y >= 0) (y <= 100));
+
