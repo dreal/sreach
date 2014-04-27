@@ -1,8 +1,7 @@
-
 #define ay 1.2
 #define az 0.8
 
-U(3.1, 3.2) omega;
+U(3.1, 3.2) omega3;
 B(0.99) ax;
 
 
@@ -27,7 +26,7 @@ invt:
         (tau <= 5);
 
 flow:
-        d/dt[x] = - ax * sin(omega * tau);
+        d/dt[x] = - ax * sin(omega3 * tau);
         d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * sin(omega2)*2;
         d/dt[z] = - az * sin( (omega2 + 1.0) * tau) * cos(omega1)*2;
         d/dt[omega1] = ( 0 - 0.5 * omega1);
@@ -49,7 +48,7 @@ invt:
         (tau <= 10);
 
 flow:
-        d/dt[x] = - ax * sin(omega * tau);
+        d/dt[x] = - ax * sin(omega3 * tau);
         d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * sin(omega2)*2;
         d/dt[z] = - az * sin( (2.0 - omega2) * tau) * sin(omega1)*2;
         d/dt[omega1] = (0 - omega1);
@@ -71,7 +70,7 @@ invt:
         (tau <= 6);
 
 flow:
-        d/dt[x] = - ax * sin(omega * tau);
+        d/dt[x] = - ax * sin(omega3 * tau);
         d/dt[y] = - ay * sin( (omega1 + 1.0) * tau) * sin(omega2)*2;
         d/dt[z] = - az * sin( (omega2 + 2.0) * tau) * cos(omega1)*2;
         d/dt[omega1] = ( 0 - 0.5 * omega1);

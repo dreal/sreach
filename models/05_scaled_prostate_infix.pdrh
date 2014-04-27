@@ -1,16 +1,28 @@
-#define	alphax	0.0204
-#define alphay	0.0242
-#define	betax	0.0076
-#define	betay	0.0168
+//#define	alphax	0.0204
+//#define alphay	0.0242
+//#define	betax	0.0076
+//#define	betay	0.0168
+
+U(0.0193, 0.0214) alphax;
+U(0.0230, 0.0254) alphay;
+U(0.0072, 0.0079) betax;
+U(0.0160, 0.0176) betay;
+
 #define	k1	0.0
 #define	k2	2.0
 #define	k3	0.8
 #define	k4	0.5
-#define	m1	0.00005
-#define	z0	30.0
+//#define	m1	0.00005
+
+U(0.0000475, 0.0000525) m1;
+
+//#define	z0	30.0
+
+N(30.0, 0.001) z0;
+
 #define	t	12.5
-#define	r1	15.0
-#define	r0	10.0
+#define	r1	11.0
+#define	r0	7.0
 #define	c1	0.0
 #define	c2	0.0
 #define	c3	0.0
@@ -28,7 +40,7 @@
 [0.0, 30.0]	v;
 
 [0, 20]	time;
-[0, 1000]	tau;
+[0, 1000] tau;
 
 {mode 1;
 

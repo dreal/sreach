@@ -9,14 +9,24 @@
 // theta: delay between command is sent to pump and the time it is executed
 
 
-#define mu 0.8 
-#define lambda 2 
-#define max 50
-#define min 10
-#define theta 1 
-//#define H 15 // init vol of water in tank 
+//#define mu 10 
+N(10, 0.0001) mu;
+//#define lambda 30 
+N(30, 0.0001) lambda;
+//#define max 70
+U(68, 72) max;
+//#define min 30
+U(28, 32) min;
+//#define theta 0.5 
+N(0.5, 0.0001) theta;
+//#define H0 45 // init vol of water in tank 
 
-[0, 60] y; // volume of water of tank
+
+U(40, 50) H0;
+U(0.1, 2) theta;
+
+
+[0, 100] y; // volume of water of tank
 [0, 3] time;
 [0, 1000] tau;
 
@@ -24,8 +34,8 @@
 { mode 1; //pump off
 
   invt:
-        (y <= max);
-	(y >= min);
+        //(y <= max);
+	//(y >= min);
   flow:
         d/dt[y] = 0 - mu;
 	d/dt[tau] = 1.0;
@@ -35,7 +45,7 @@
 { mode 2; //wait to on
 
   invt:
-        (y >= 0);
+        //(y >= 0);
   flow:
         d/dt[y] = 0 - mu;
 	d/dt[tau] = 1.0;
@@ -45,8 +55,8 @@
 { mode 3; //pump on
 
   invt:
-        (y <= max); 
-	(y >= min);
+        //(y <= max); 
+	//(y >= min);
   flow:
         d/dt[y] = lambda - mu;
 	d/dt[tau] = 1.0;
@@ -56,7 +66,7 @@
 { mode 4; //wait to off
 
   invt:
-        (y <= 60);
+        //(y <= 60);
   flow:
         d/dt[y] = lambda - mu;
 	d/dt[tau] = 1.0;
@@ -64,7 +74,8 @@
         (tau >= theta) ==> @1 (and (tau' = tau) (y' = y));
 }
 init:
-@1	(and (y >= min) (y <= max));
+@1	(y = H0);
 
 goal:
-@3	(and (y >= min) (y <= max));
+@4	(and (y >= (min - 5)) (y <= (max + 5)));
+//@3	(and (y >= 0) (y <= 100));

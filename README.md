@@ -3,7 +3,7 @@
        src="https://scan.coverity.com/projects/1715/badge.svg"/>
 </a>
 
-``statsmt_sq`` is a combination of dreal/dreach and statistical analyzing methods (sequential version).
+``SReach`` is a combination of dreal/dreach and statistical analyzing methods (sequential version).
 
 Installation
 ============
@@ -31,7 +31,7 @@ Compile
     make
 
 We have tested them under Mac OSX v10.9.2, and Ubuntu 12.04.
-``statsmt_sq`` uses the GNU Scientific Library (GSL), so you need that
+``SReach`` uses the GNU Scientific Library (GSL), so you need that
 to be installed.
 
 Usage
@@ -39,7 +39,7 @@ Usage
 
 The command line is as follows:
 
-    statsmt <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model>
+     <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model> <precision>
 
 where:
 
@@ -47,12 +47,13 @@ where:
  - ``<prob_drh-modelfile>`` is the file name and path of the probabilistic extension model of the dreach model
  - ``<dReach>`` is the dReach executable, give the path to it
  - ``<k-unfolding_steps_for_dreach_model>`` is the given steps to unfold the probabilistic hybrid system
+ - ``<precision>`` is the given \delta for the \delta-decision procedure dReal/dReach
 
 For example, try the following command (the path for dReach needs to be changed):
 
-    ./statsmt_sq ../statistical_test/test01 \\
+    ./sreach ../statistical_test/test01 \\
                  ../models/bouncing_ball_with_drag.pdrh \\
-                 ~/Desktop/qinsiw/misc/dreal/bin/dReach \\
+                 ~/Desktop/qinsiw/sreach/dreal/bin/dReach \\
                  8
 
 The final output should be the dReach output followed by something like:
@@ -87,4 +88,4 @@ file, except the following differences:
 
  - In the pre-process section (#define), the user can also use the declared random variables.
 
-For more details, the user can go to the given sample models.
+For more details, the user can go to the "Statistical_testing.pdf", and "Usage.pdf" in the "documents" folder.

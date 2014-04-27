@@ -1,0 +1,47 @@
+
+//#define t1 18 // temperature threshold 1
+U(16, 20) t1;
+U(3, 5) diff;
+//#define t2 22 // tmp thres 2
+#define t2 (t1 + diff)
+//#define T0 20 // init tmp of room
+N(20, 0.001) T0;
+//#define K 2.5 // the coefficient for the exponential decrease K
+U(2, 3) K;
+
+
+[0, 130] x; // room tmp
+[0, 3] time;
+[0, 1000] tau;
+
+
+{ mode 1; //off
+
+  invt:
+        (x >= t1);
+	(tau >= 0.0);
+  flow:
+        //d/dt[x] = x * (e ^ (0 - K * tau));
+	d/dt[x] = 0 - x * K;
+	d/dt[tau] = 1.0;
+  jump:
+        (x <= (t1 + 1)) ==> @2 (and (x' = x) (tau' = tau));
+}
+{ mode 2;
+
+  invt:
+        (x <= t2);
+	(tau >= 0.0);
+  flow:
+        //d/dt[x] = x * (e ^ (K * tau));
+	d/dt[x] = 0 - K * (x - 30);
+	d/dt[tau] = 1.0;
+  jump:
+        (x >= (t2 - 1)) ==> @1 (and (x' = x) (tau' = tau));
+}
+init:
+@1	(and (x = T0) (tau = 0));
+
+goal:
+@2	((x - T0)<= 5);
+//@1      (x <= (t1 + 1));

@@ -1,13 +1,17 @@
-#define D (rv1 / 2)
-#define K (rv2 - 0.1)
 
-[0, 15] x;
-[-18, 18] v;
-[0, 3] time;
+//#define D 0.45 // force from the drag
+//#define K 0.9 // dissipation factor \in (0, 1)
 
-N(1, 1) rv1;
-B(1) rv2;
-U(9.8, 9.8) g;
+[0, 15] x; // the height of the ball
+[9.8] g; // the gravity 
+[-18, 18] v; // velocity
+[0, 3] time; 
+
+U(0, 1) K;
+N(0, 1) v0;
+U(8, 12) H0;
+U(0.04, 1.15) D;
+// different drag coefficients w.r.t. different shapes of the ball
 
 { mode 1;
 
@@ -22,6 +26,7 @@ U(9.8, 9.8) g;
 }
 {
   mode 2;
+  
   invt:
         (v >= 0);
         (x >= 0);
@@ -32,7 +37,7 @@ U(9.8, 9.8) g;
         (v = 0) ==> @1 (and (x' = x) (v' = v));
 }
 init:
-@1	(and (x >= 10) (x <= 11) (v = 0));
+@1	(and (x = H0) (v = v0));
 
 goal:
 @1	(and (x >= 0.35) (v >= -18));

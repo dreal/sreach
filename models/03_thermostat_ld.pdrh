@@ -1,0 +1,38 @@
+
+//#define thr1 73 // temperature threshold 1
+U(70, 74) thr1;
+U(2, 3) diff;
+//#define thr2 77 // tmp thres 2
+#define thr2 (thr1 + diff)
+#define T0 (thr1 + (diff / 2)) // init tmp of room
+U(40, 60) vh1;
+U(90, 110) vh2;
+
+[0, 150] x; // room tmp
+[0, 1] time;
+
+{ mode 1; // off mode
+
+  invt:
+        (x >= thr1);
+  flow:
+        d/dt[x] = vh1 - x;
+  jump:
+        (x <= thr1) ==> @2 (x' = x);
+}
+{ mode 2; // on mode
+
+  invt:
+        (x <= thr2);
+  flow:
+        d/dt[x] = vh2 - x;
+  jump:
+        (x >= thr2) ==> @1 (x' = x);
+}
+init:
+@1	(and (x = T0));
+
+goal:
+@2	(and ((x - T0) <= 5 ));
+
+
