@@ -1,14 +1,7 @@
 
-//#define K 0.9 // dissipation factor \in (0, 1)
-// add initial height for the ball
-//#define H0 (H0_0 + 1)
-//#define H0 10
-// add the initial velocity of the ball
-//#define v0 0
-
-[0, 15] x; // the height of the ball
-[9.8] g; // the gravity 
-[-18, 18] v; // velocity
+[0, 15] x; 
+[9.8] g; 
+[-18, 18] v;
 [0, 3] time; 
 
 U(0.85, 0.95) K;
