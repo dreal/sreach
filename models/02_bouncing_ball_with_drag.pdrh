@@ -1,17 +1,14 @@
 
-//#define D 0.45 // force from the drag
-//#define K 0.9 // dissipation factor \in (0, 1)
-
-[0, 15] x; // the height of the ball
-[9.8] g; // the gravity 
-[-18, 18] v; // velocity
+[0, 15] x;
+[9.8] g; 
+[-18, 18] v; 
 [0, 3] time; 
 
 U(0, 1) K;
 N(0, 1) v0;
 U(8, 12) H0;
 U(0.04, 1.15) D;
-// different drag coefficients w.r.t. different shapes of the ball
+
 
 { mode 1;
 
