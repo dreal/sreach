@@ -88,4 +88,8 @@ file, except the following differences:
 
  - In the pre-process section (#define), the user can also use the declared random variables.
 
-For more details, the user can go to the "Statistical_testing.pdf", and "Usage.pdf" in the "documents" folder.
+For more details, the user can go to the [Statistical_testing.pdf][testing], and [Usage.pdf][usage] in the [documents][doc] folder.
+
+[testing]: https://github.com/dreal/SReach/raw/master/documents/Statistical_testing.pdf
+[usage]: https://github.com/dreal/SReach/raw/master/documents/Usage.pdf
+[doc]: https://github.com/dreal/SReach/tree/master/documents
