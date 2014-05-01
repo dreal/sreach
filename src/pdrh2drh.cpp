@@ -58,7 +58,8 @@ void pdrh2drh (string const & modelfile) {
     {
 
       string str = line.substr(0, 2);
-      if (str == "B(" || str =="N(" || str =="U(" || str =="E(")
+      string str2 = line.substr(0, 3);
+      if (str == "B(" || str =="N(" || str =="U(" || str =="E(" || str2 == "DD(")
       {
         myfile2 << line << '\n';
       }
