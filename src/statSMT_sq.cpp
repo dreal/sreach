@@ -806,8 +806,8 @@ int main (int argc, char **argv) {
     std::string simfile("rv.txt");
 
     // timing stuff
-    time_t start = time(NULL);
-    clock_t tic = clock();
+    //time_t start = time(NULL);
+    //clock_t tic = clock();
 
 
     /** for the third,forth, and fifth arguments: **/
@@ -926,9 +926,9 @@ int main (int argc, char **argv) {
 
 
 
-  cout << "Elapsed cpu time: " << (clock() - tic) / (double)CLOCKS_PER_SEC << endl;
+  //cout << "Elapsed cpu time: " << (clock() - tic) / (double)CLOCKS_PER_SEC << endl;
 
-  cout << "Elapsed wall time: " << (time(NULL) - start) << endl;
+  //cout << "Elapsed wall time: " << (time(NULL) - start) << endl;
 
   exit(EXIT_SUCCESS);
 }
