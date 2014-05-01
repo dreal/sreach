@@ -41,6 +41,8 @@
 #include <boost/regex.hpp>
 #include "simulation.hpp"
 #include <cstdlib>
+#include <vector>
+#include <sstream>
 
 using std::bernoulli_distribution;
 using std::cout;
@@ -62,9 +64,9 @@ void simulation (string const & distrfile){
 
   if (rvfile.is_open())
   {
-    string s, sre, line2;
-    boost::regex re;
-    boost::cmatch matches;
+      string s, sre, sre2, sre3, line2;
+      boost::regex re, re2, re3;
+      boost::cmatch matches, matches2, matches3;
 
     while (getline (rvfile, line2))
     {
@@ -175,6 +177,81 @@ void simulation (string const & distrfile){
                   normal_distribution<double> distribution(para1, para2);
                   double x = distribution(generator);
                   assignfile << matches[12] << " " << x << endl;
+              } else {cout << "Does not match!" << endl; }
+          } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
+              cout << "regex_match failed!" << endl;
+          }
+      }
+      else if (distr == "D")
+      {
+          sre = "(DD)(\\s)*(\\()(([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))(\\s)*(,)(\\s)*)*([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*";
+          sre2 = "([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))";
+          sre3 = "([a-zA-Z][a-zA-Z0-9_]*)(;)";
+          try
+          {
+              re = sre; // re is the regex object for sre
+              re2 = sre2;
+              re3 = sre3;
+          }
+          catch (boost::regex_error& e)
+          {
+              cout << sre << " is not a valid regular expression: \""
+              << e.what() << "\"" << endl;
+          }
+          try {
+              if (boost::regex_match(line2.c_str(), matches, re)) {
+                  
+                  // get the var name first
+                  boost::sregex_iterator rit2 (line2.begin(), line2.end(), re3);
+                  boost::sregex_iterator rend2;
+                  std::string ddvarname0 = rit2->str();
+                  std::string ddvarname = ddvarname0.substr(0, ddvarname0.length()-1);
+                  //cout << ddvarname << endl;
+                  
+                  boost::sregex_iterator rit (line2.begin(), line2.end(), re2);
+                  boost::sregex_iterator rend;
+                  std::vector<float> ddpara1;
+                  std::vector<float> ddpara2;
+                  std::string ddvalstr, ddprobstr;
+                  char delimeter(':');
+                  
+                  while (rit!=rend) {
+                      std::string ddres = rit->str();
+                      std::string ddres2 = ddres.substr(1, (ddres.length() - 1));
+                      std::istringstream iss(ddres2);
+                      std::getline(iss, ddvalstr, delimeter);
+                      float ddval = std::strtod(ddvalstr.c_str(), nullptr);
+                      ddpara1.push_back(ddval);
+                      //cout << ddvalstr.c_str() << endl;
+                      std::getline(iss, ddprobstr);
+                      float ddprob = std::strtod(ddprobstr.c_str(), nullptr);
+                      ddpara2.push_back(ddprob);
+                      //cout << ddprobstr.c_str() << endl;
+                      //std::cout << ddres2 << endl;
+                      ++rit;
+                      iss.clear();
+                  }
+                  //                 for( int i = 0; i < ddpara2.size(); i++){
+                  //                  cout << ddpara2[i] << endl;
+                  //                    }
+                  //cout << "match!" << endl;
+                  std::default_random_engine generator(time(0));
+                  std::size_t j(0);
+                  // call to ddpara2.front() / back() would fail otherwise!
+                  assert(!ddpara2.empty());
+                  
+                  std::discrete_distribution<> distribution(ddpara2.size(),
+                                                            ddpara2.front(),
+                                                            ddpara2.back(),
+                                                            [&ddpara2,&j](double)
+                                                            {
+                                                                auto w = ddpara2[j];
+                                                                ++j;
+                                                                return w;
+                                                            });
+                  float x = distribution(generator);
+                  assignfile << ddvarname << " " << x << endl;
+                  
               } else {cout << "Does not match!" << endl; }
           } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
               cout << "regex_match failed!" << endl;
