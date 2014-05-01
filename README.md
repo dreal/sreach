@@ -59,12 +59,12 @@ For example, try the following command (the path for dReach needs to be changed)
 The final output should be the dReach output followed by something like:
 
     BFTI 0.9 1000 1 1 0.01: Reject Null Hypothesis, successes = ??, samples = ??
-    Elapsed time: ?? seconds
 
-where the question mark figures vary from run to run, of course.
 
 Since dReach will be called for each simulation/sampling, it may take
 some time to return the final result if the pdrh model is large.
+
+To time the total CPU time, use command "time" before the command line of SReach.
 
 
 Specification of the model file
