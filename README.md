@@ -80,9 +80,12 @@ file, except the following differences:
    N(1, 1) rv1;
    B(1) rv2;
    U(9.8, 9.8) g;
+   DD(1:0.7, 2:0.2, 3:0.1) rv3;
    ````
-   Currently, it can handle Bernoulli, Uniform, Normal, and
-   Exponential distributions, which are widely used. (It is not hard
+   Currently, it can handle Bernoulli, Uniform, Normal,
+   Exponential distributions, and Discrete distributions 
+   with given set of possible values and corresponding probabilities,
+   which are widely used. (It is not hard
    to add any other distributions upon the demands.)
 
 
