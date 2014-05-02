@@ -103,7 +103,6 @@ public:
 
 };
 
-
 // base class for hypothesis tests
 class HTest : public Test {
 protected:
@@ -210,6 +209,53 @@ public:
     }
   }
 };
+
+// class for naive sampling
+class NSAM : public Estim {
+private:
+    unsigned long int N;		// the given sample num
+    
+public:
+    NSAM(string v) : Estim(v){
+        N = 0;
+    }
+    
+    unsigned long int get_NSAM_samplenum() {
+        if (N == 0) {
+            cerr << "N has not been set" << endl;
+            exit(EXIT_FAILURE);
+        }
+        return N;
+    }
+    
+    void init() {
+        string testName;
+        
+        // convert test arguments from string to float
+        istringstream inputString(args);
+        inputString >> testName >> c;			// by default >> skips whitespaces
+        
+        // read the sample num
+        N = int (c);
+        
+        // writes back the test arguments, with proper formatting
+        ostringstream tmp;
+        tmp << testName << " " << c;
+        args = tmp.str();
+    }
+    
+    void doTest (unsigned long int n, unsigned long int x) {
+        
+        // a multi-threaded program will overshoot the bound
+        if (n >= N) {
+            out = DONE;
+            samples = n;
+            successes = x;
+            estimate = double (x)/ double(n);
+        }
+    }
+};
+
 
 
 // print the results of an estimation object
@@ -726,7 +772,10 @@ int main (int argc, char **argv) {
         "\n"
         "Estimation methods:\n"
         " Chernoff-Hoeffding bound: CHB <delta> <coverage probability>\n"
-        " Bayesian estimation: BEST <delta> <coverage probability> <alpha> <beta>\n\n"
+        " Bayesian estimation: BEST <delta> <coverage probability> <alpha> <beta>\n"
+        "\n"
+        "Sampling method:\n"
+        " Naive sampling: NSAM <#samples> \n\n"
         "Empty lines and lines beginning with '#' are ignored.\n"
         "";
 
@@ -780,6 +829,7 @@ int main (int argc, char **argv) {
             else if (keyword == "CHB")  myTests.push_back(new CHB(lines[i]));
             else if (keyword == "BEST") myTests.push_back(new BayesEstim(lines[i]));
             else if (keyword == "BFTI") myTests.push_back(new BFTI(lines[i]));
+            else if (keyword == "NSAM") myTests.push_back(new NSAM(lines[i]));
             else {
                 cerr << "Test unknown: " << lines[i] << endl;
                 exit(EXIT_FAILURE);
@@ -805,9 +855,9 @@ int main (int argc, char **argv) {
     // simulate it later upon the demands from different statistical analyzing methods
     std::string simfile("rv.txt");
 
-    // timing stuff
-    //time_t start = time(NULL);
-    //clock_t tic = clock();
+//    // timing stuff
+//    time_t start = time(NULL);
+//    clock_t tic = clock();
 
 
     /** for the third,forth, and fifth arguments: **/
@@ -926,9 +976,9 @@ int main (int argc, char **argv) {
 
 
 
-  //cout << "Elapsed cpu time: " << (clock() - tic) / (double)CLOCKS_PER_SEC << endl;
-
-  //cout << "Elapsed wall time: " << (time(NULL) - start) << endl;
+//  cout << "Elapsed cpu time: " << (clock() - tic) / (double)CLOCKS_PER_SEC << endl;
+//
+//  cout << "Elapsed wall time: " << (time(NULL) - start) << endl;
 
   exit(EXIT_SUCCESS);
 }
