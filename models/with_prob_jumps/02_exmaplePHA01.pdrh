@@ -1,0 +1,37 @@
+// result: (k = 3, precision = 0.5)
+// NSAM 1000: estimate = 0.636, successes = 636, samples = 1000
+// 
+
+DD(1:0.1, 2:0.9) pjump1;
+
+
+
+[-1000, 1000] x;
+
+[0, 3] time;
+
+{ mode 1;
+
+  invt:
+        
+  flow:
+        d/dt[x] = 0;
+  jump:
+        (and (x > 1) (pjump1 = 1)) ==> @1 (x' = x + 1);
+	(and (x > 1) (pjump1 = 2)) ==> @2 (x' = x);
+}
+
+{
+  mode 2;
+  invt:
+        
+  flow:
+        d/dt[x] = 0;
+  jump:
+        (true) ==> @2 (x' = x * sin (x));
+}
+init:
+@1	(x = 2.5);
+
+goal:
+@2	(and (x <= 1000) (x >= -1000));
