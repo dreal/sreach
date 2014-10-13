@@ -1,6 +1,5 @@
 /***********************************************************************************************
  * Copyright (C) 2014 Qinsi Wang and Edmund M. Clarke.  All rights reserved.
- * Note: the implementation of different statistical testing classes are from the statistical model checker developed by Paolo Zuliani.
  * By using this software the USER indicates that he or she has read, understood and will comply
  * with the following:
  *
@@ -33,4 +32,4 @@
 #include <vector>
 #include <string>
 std::vector<std::string> split(std::string const & s);
-void replace (std::string const & olddrhfile, std::string const & simresfile);
+void replace (std::string const & olddrhfile, std::vector<std::string> & simresf);
