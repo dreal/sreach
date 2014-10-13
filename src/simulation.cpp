@@ -1,6 +1,5 @@
 /***********************************************************************************************
  * Copyright (C) 2014 Qinsi Wang and Edmund M. Clarke.  All rights reserved.
- * Note: the implementation of different statistical testing classes are from the statistical model checker developed by Paolo Zuliani.
  * By using this software the USER indicates that he or she has read, understood and will comply
  * with the following:
  *
@@ -54,22 +53,22 @@ using std::normal_distribution;
 using std::ofstream;
 using std::string;
 using std::uniform_real_distribution;
+using std::vector;
+using std::ostringstream;
 
-void simulation (string const & distrfile){
+vector<string> simulation (vector<string> & distrfile){
 
-  ifstream rvfile (distrfile); // the random variables file
+    vector<string> assignfile;
 
-  ofstream assignfile ("simres.txt"); // output the simulation results for rvs
+    string s, sre, sre2, sre3;
+    boost::regex re, re2, re3;
+    boost::cmatch matches, matches2, matches3;
+    
+   
 
-
-  if (rvfile.is_open())
-  {
-      string s, sre, sre2, sre3, line2;
-      boost::regex re, re2, re3;
-      boost::cmatch matches, matches2, matches3;
-
-    while (getline (rvfile, line2))
-    {
+    for (unsigned i = 0; i < distrfile.size(); i++){
+      
+      string line2 = distrfile[i];
       string distr = line2.substr(0,1);
 
       if (distr == "B")
@@ -78,8 +77,6 @@ void simulation (string const & distrfile){
           sre = "(B)(\\s)*(\\()([-+]?[0-9]*.?[0-9]+)(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*";
           try
           {
-              // Assignment and construction initialize the FSM used
-              // for regexp parsing
               re = sre;
           }
           catch (boost::regex_error& e)
@@ -91,12 +88,17 @@ void simulation (string const & distrfile){
               if (boost::regex_match(line2.c_str(), matches, re)) {
 
                   string paraStr = string() + matches[4];
-                  double para = atof(paraStr.c_str());//parameter for the bernoulli distribution
+                  double para = atof(paraStr.c_str());
 
-                  default_random_engine generator(time(0));
+                  std::random_device rd;
+                  default_random_engine generator(rd());
                   bernoulli_distribution distribution(para);
                   double x = double(distribution(generator));
-                  assignfile << matches[8] << " " << x << endl;
+                  std::ostringstream strs;
+                  strs << x;
+                  std::string x_str = strs.str();
+                  string Bsample = matches[8] + " " + x_str;
+                  assignfile.push_back(Bsample);
               }else {cout << "Does not match!" << endl;}
           } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
               cout << "regex_match failed!" << endl;
@@ -118,10 +120,15 @@ void simulation (string const & distrfile){
               if (boost::regex_match(line2.c_str(), matches, re)) {
                   string paraStr = string() + matches[4];
                   double para = atof(paraStr.c_str());
-                  default_random_engine generator(time(0));
+                  std::random_device rd;
+                  default_random_engine generator(rd());
                   exponential_distribution<double> distribution(para);
                   double x = distribution(generator);
-                  assignfile << matches[8] << " " << x << endl;
+                  std::ostringstream strs;
+                  strs << x;
+                  std::string x_str = strs.str();
+                  string Esample = matches[8] + " " + x_str;
+                  assignfile.push_back(Esample);
               } else {cout << "Does not match!" << endl;}
           } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
               cout << "regex_match failed!" << endl;
@@ -146,10 +153,15 @@ void simulation (string const & distrfile){
                   double para1 = atof(paraStr1.c_str());
                   string paraStr2 = string() + matches[8];
                   double para2 =atof(paraStr2.c_str());
-                  default_random_engine generator(time(0));
+                  std::random_device rd;
+                  default_random_engine generator(rd());
                   uniform_real_distribution<double> distribution(para1, para2);
                   double x = distribution(generator);
-                  assignfile << matches[12] << " " << x << endl;
+                  std::ostringstream strs;
+                  strs << x;
+                  std::string x_str = strs.str();
+                  string Usample = matches[12] + " " + x_str;
+                  assignfile.push_back(Usample);
               } else {cout << "Does not match!" << endl; }
           } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
               cout << "regex_match failed!" << endl;
@@ -173,10 +185,15 @@ void simulation (string const & distrfile){
                   double para1 = atof(paraStr1.c_str());
                   string paraStr2 = string() + matches[8];
                   double para2 =atof(paraStr2.c_str());
-                  default_random_engine generator(time(0));
+                  std::random_device rd;
+                  default_random_engine generator(rd());
                   normal_distribution<double> distribution(para1, para2);
                   double x = distribution(generator);
-                  assignfile << matches[12] << " " << x << endl;
+                  std::ostringstream strs;
+                  strs << x;
+                  std::string x_str = strs.str();
+                  string Nsample = matches[12] + " " + x_str;
+                  assignfile.push_back(Nsample);
               } else {cout << "Does not match!" << endl; }
           } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
               cout << "regex_match failed!" << endl;
@@ -189,7 +206,7 @@ void simulation (string const & distrfile){
           sre3 = "([a-zA-Z][a-zA-Z0-9_]*)(;)";
           try
           {
-              re = sre; // re is the regex object for sre
+              re = sre;
               re2 = sre2;
               re3 = sre3;
           }
@@ -206,7 +223,6 @@ void simulation (string const & distrfile){
                   boost::sregex_iterator rend2;
                   std::string ddvarname0 = rit2->str();
                   std::string ddvarname = ddvarname0.substr(0, ddvarname0.length()-1);
-                  //cout << ddvarname << endl;
                   
                   boost::sregex_iterator rit (line2.begin(), line2.end(), re2);
                   boost::sregex_iterator rend;
@@ -222,20 +238,15 @@ void simulation (string const & distrfile){
                       std::getline(iss, ddvalstr, delimeter);
                       float ddval = std::strtod(ddvalstr.c_str(), nullptr);
                       ddpara1.push_back(ddval);
-                      //cout << ddvalstr.c_str() << endl;
                       std::getline(iss, ddprobstr);
                       float ddprob = std::strtod(ddprobstr.c_str(), nullptr);
                       ddpara2.push_back(ddprob);
-                      //cout << ddprobstr.c_str() << endl;
-                      //std::cout << ddres2 << endl;
                       ++rit;
                       iss.clear();
                   }
-                  //                 for( int i = 0; i < ddpara2.size(); i++){
-                  //                  cout << ddpara2[i] << endl;
-                  //                    }
-                  //cout << "match!" << endl;
-                  std::default_random_engine generator(time(0));
+                  
+                  std::random_device rd;
+                  std::default_random_engine generator(rd());
                   std::size_t j(0);
                   // call to ddpara2.front() / back() would fail otherwise!
                   assert(!ddpara2.empty());
@@ -249,8 +260,12 @@ void simulation (string const & distrfile){
                                                                 ++j;
                                                                 return w;
                                                             });
-                  float x = distribution(generator);
-                  assignfile << ddvarname << " " << x << endl;
+                  float x = distribution(generator) + 1;
+                  std::ostringstream strs;
+                  strs << x;
+                  std::string x_str = strs.str();
+                  string Dsample = ddvarname + " " + x_str;
+                  assignfile.push_back(Dsample);
                   
               } else {cout << "Does not match!" << endl; }
           } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
@@ -258,13 +273,6 @@ void simulation (string const & distrfile){
           }
       }
     }
-    rvfile.close();
-  }
-  else
-  cout << "Unable to open the distribution file. " << endl;
-
-
-
-    assignfile.close();
-
+    
+return assignfile;
 }
