@@ -101,7 +101,7 @@ if(Boost_FOUND)
 endif()
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS})
-set(EXTRA_LIBS ${GSL_LIBRARIES} ${EXTRA_LIBS})
+set(EXTRA_LIBS ${EXTRA_LIBS} "-L${GSL_LIBRARY_DIRS}" ${GSL_LIBRARIES})
 
 ################################################################
 # External: set up include dir
@@ -117,6 +117,15 @@ set(STATSMT_LIBS ${STATSMT_LIBS} replace)
 
 add_library(simulation simulation.cpp)
 set(STATSMT_LIBS ${STATSMT_LIBS} simulation)
+
+add_library(evalrv evalrv.cpp)
+set(STATSMT_LIBS ${STATSMT_LIBS} evalrv)
+
+add_library(prereplace prereplace.cpp)
+set(STATSMT_LIBS ${STATSMT_LIBS} prereplace)
+
+add_library(presim presim.cpp)
+set(STATSMT_LIBS ${STATSMT_LIBS} presim)
 
 add_library(pdrh2drh pdrh2drh.cpp)
 set(STATSMT_LIBS ${STATSMT_LIBS} pdrh2drh)
