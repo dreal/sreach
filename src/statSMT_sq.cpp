@@ -879,6 +879,10 @@ int main (int argc, char **argv) {
     // initialize a vector of vectors to store all sampled assignments and their dreach returns
     vector< vector<string> > assgn_res;
     vector<string> presimfile;
+    vector<string> simsat;
+    vector<string> simunsat;
+    vector<string> simressat;
+    vector<string> simresunsat;
     
     // start generating sample drh models for dReach
     // for each drh model, the values of random variables are assigned
@@ -901,39 +905,45 @@ int main (int argc, char **argv) {
             simresfile = simulation(fstrvfile);
         }
         
-        /*
+        
         for (unsigned long i = 0; i < simresfile.size(); ++i) {
             cout << simresfile[i] << endl;
         }
-        */
-        //cout << simresfile.size() << endl;
-        
         
         
         // check whether (assgn2rv1, ..., assgn2rvk, sat/unsat) already exists
-        vector<string> simsat = simresfile;
+        simsat = simresfile;
         simsat.push_back("sat");
         
-        vector<string> simunsat = simresfile;
+        simunsat = simresfile;
         simunsat.push_back("unsat");
         
+        bool sim1b = false;
+        for (unsigned int sim1 = 0; sim1 < assgn_res.size(); ++sim1) {
+            if (assgn_res[sim1] == simsat) {
+                sim1b = true;
+            }
+        }
         
-        if (std::find(assgn_res.begin(), assgn_res.end(), simsat) != assgn_res.end()) {
+        
+        bool sim2b = false;
+        for (unsigned int sim2 = 0; sim2 < assgn_res.size(); ++sim2) {
+            if (assgn_res[sim2] == simunsat) {
+                sim2b = true;
+            }
+        }
+        
+        if (sim1b) {
             satnum++;
             cout << "no need to call dreach, sat" << endl;
-            simsat.clear();
-            simunsat.clear();
-        } else if (std::find(assgn_res.begin(), assgn_res.end(), simunsat) != assgn_res.end()){
+        }
+        else if (sim2b){
             unsatnum++;
             cout << "no need to call dreach, unsat" << endl;
-            simsat.clear();
-            simunsat.clear();
-        }else {
+        }else{
         
             replace(drhfile, simresfile);
-            simresfile.clear();
         
-            //cout << simresfile.size() << endl;
             // call dReach
             ret = system(calldReach.c_str());
             
@@ -980,20 +990,19 @@ int main (int argc, char **argv) {
             smtresfile.open(outputfilenam);
             
             if (smtresfile.is_open()) {
+                cout << "here" << endl;
                 std::string line;
                 getline(smtresfile, line);
                 if (line == "sat") {
                     satnum++;
-                    
-                    vector<string> simressat = simresfile;
+                    simressat = simresfile;
                     simressat.push_back("sat");
                     assgn_res.push_back(simressat);
                     simressat.clear();
                     
                 } else {
                     unsatnum++;
-                    
-                    vector<string> simresunsat = simresfile;
+                    simresunsat = simresfile;
                     simresunsat.push_back("unsat");
                     assgn_res.push_back(simresunsat);
                     simresunsat.clear();
@@ -1007,9 +1016,10 @@ int main (int argc, char **argv) {
 
         }
         
+        
         simsat.clear();
         simunsat.clear();
-        
+        simresfile.clear();
         
 
         // do all the tests
@@ -1029,6 +1039,6 @@ int main (int argc, char **argv) {
         
     
     }		// loop
-    //cout << assgn_res.size() << endl;
+    cout << "total combinations are" << assgn_res.size() << endl;
   exit(EXIT_SUCCESS);
 }
