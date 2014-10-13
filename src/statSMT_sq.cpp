@@ -1,6 +1,6 @@
 /***********************************************************************************************
  * Copyright (C) 2014 Qinsi Wang and Edmund M. Clarke.  All rights reserved.
- * Note: the implementation of different statistical testing classes are from the statistical model checker developed by Paolo Zuliani.
+ * Note: part of the implementation of different statistical testing classes are from the statistical model checker developed by Paolo Zuliani.
  * By using this software the USER indicates that he or she has read, understood and will comply
  * with the following:
  *
@@ -60,6 +60,9 @@
 #include <ctime>
 #include <typeinfo>
 #include "pdrh2drh.hpp"
+#include "presim.hpp"
+#include "prereplace.hpp"
+#include "evalrv.hpp"
 #include "simulation.hpp"
 #include "replace.hpp"
 
@@ -756,7 +759,7 @@ public:
 int main (int argc, char **argv) {
 
     const string USAGE =
-        "\nUsage: statsmt <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model> <precision>\n\n"
+        "\nUsage: sreach <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model> <precision>\n\n"
         "where:\n"
         "      <testfile> is a text file containing a sequence of test specifications, give the path to it;\n"
         "      <prob_drh-modelfile> is the file name and path of the probilistical extension model of the dreach model;\n"
@@ -849,16 +852,18 @@ int main (int argc, char **argv) {
     // prepare the drh model file ("model_w_define.drh") and
     // the rv_distribution file ("rv.txt")
     // by calling the pdrh2drh.cpp
-    pdrh2drh (string(argv[2]));
+    vector<string> fstrvfile = pdrh2drh (string(argv[2]));
 
-    // the random variables and distributions file
-    // simulate it later upon the demands from different statistical analyzing methods
-    std::string simfile("rv.txt");
-
-//    // timing stuff
-//    time_t start = time(NULL);
-//    clock_t tic = clock();
-
+//    // the random variables and distributions file
+//    // simulate it later upon the demands from different statistical analyzing methods
+//    std::string presimfile("rv.txt");
+//    std::string prereplacef("presimres.txt");
+//    std::string evalrvf("nurv.txt");
+//    std::string simfile("finrv.txt");
+    
+//    // prepare some names which may be used later before entering the loop
+    std::string drhfile("model_w_define.drh");
+//    std::string simresfile("simres.txt"); // name of simulation result file
 
     /** for the third,forth, and fifth arguments: **/
     // build the command lines for dReach
@@ -870,93 +875,142 @@ int main (int argc, char **argv) {
     std::string dReachcomm = dReachpath + dReachopt1 + dReachpara + dReachopt2;
     std::string calldReach = dReachcomm + " numodel.drh";
 
-
-    // prepare some names which may be used later before entering the loop
-    std::string drhfile("model_w_define.drh");
-    std::string simresfile("simres.txt"); // name of simulation result file
+    vector<string> simresfile;
+    // initialize a vector of vectors to store all sampled assignments and their dreach returns
+    vector< vector<string> > assgn_res;
+    vector<string> presimfile;
     
-
-
     // start generating sample drh models for dReach
     // for each drh model, the values of random variables are assigned
     // according one simulation according to the given distributions
     // each call to dReach returns sat/unsat
     while (! alldone) {
-
+        
         // Firstly, sample according to the distributions in the
         // rv.txt file, and generate the final model file for dReach
-        simulation(simfile);
-        replace(drhfile, simresfile);
-
-        // call dReach
-        ret = system(calldReach.c_str());
-
-        if (!WIFEXITED(ret)) {
-            cerr << "Error: system() call to dReach terminated abnormally: " << calldReach << endl;
-            exit (EXIT_FAILURE);
-        }
-
-        if (WEXITSTATUS(ret) == EXIT_FAILURE) {
-            cerr << "Error: system() call to dReach unsuccessful: " << calldReach << endl;
-            exit (EXIT_FAILURE);
-        }
-
-
-        /* the dReach will generate a .output file with the name <model_name>_<k_value>_i.output, where i starts from 0, for
-         each possible path. It stops when it finds a sat path j, and the
-         <model_name>_<k_value>_i.output file gives the final answer.
-         If all the paths are unsat, the final .output one returns unsat.
-         */
+        presimfile = presim(fstrvfile);
         
-        // find out the final .output file returning the answer
-        int dReachi = 0; // the ith possiable path
-        std::string nusuffix1;
-        nusuffix1.assign("_" + string(argv[4]) + "_");
-        std::string outputfilenam;
-        outputfilenam.assign("numodel" + nusuffix1 + "0.output");
-        ifstream smtresfile (outputfilenam);
-        std::string nusuffix2;
+        if (presimfile.size() > 0){
+            vector<string> sndrvfile = prereplace(fstrvfile, presimfile);
+            vector<string> finrvfile = evalrv(sndrvfile);
+            simresfile = simulation(finrvfile);
+            sndrvfile.clear();
+            finrvfile.clear();
+            presimfile.clear();
+        } else {
+            simresfile = simulation(fstrvfile);
+        }
         
-        while (smtresfile.is_open()) {
-            dReachi++;
+        /*
+        for (unsigned long i = 0; i < simresfile.size(); ++i) {
+            cout << simresfile[i] << endl;
+        }
+        */
+        //cout << simresfile.size() << endl;
+        
+        
+        
+        // check whether (assgn2rv1, ..., assgn2rvk, sat/unsat) already exists
+        vector<string> simsat = simresfile;
+        simsat.push_back("sat");
+        
+        vector<string> simunsat = simresfile;
+        simunsat.push_back("unsat");
+        
+        
+        if (std::find(assgn_res.begin(), assgn_res.end(), simsat) != assgn_res.end()) {
+            satnum++;
+            cout << "no need to call dreach, sat" << endl;
+            simsat.clear();
+            simunsat.clear();
+        } else if (std::find(assgn_res.begin(), assgn_res.end(), simunsat) != assgn_res.end()){
+            unsatnum++;
+            cout << "no need to call dreach, unsat" << endl;
+            simsat.clear();
+            simunsat.clear();
+        }else {
+        
+            replace(drhfile, simresfile);
+            simresfile.clear();
+        
+            //cout << simresfile.size() << endl;
+            // call dReach
+            ret = system(calldReach.c_str());
+            
+            if (!WIFEXITED(ret)) {
+                cerr << "Error: system() call to dReach terminated abnormally: " << calldReach << endl;
+                exit (EXIT_FAILURE);
+            }
+            
+            if (WEXITSTATUS(ret) == EXIT_FAILURE) {
+                cerr << "Error: system() call to dReach unsuccessful: " << calldReach << endl;
+                exit (EXIT_FAILURE);
+            }
+            
+            
+            /* the dReach will generate a .output file with the name <model_name>_<k_value>_i.output, where i starts from 0, for
+             each possible path. It stops when it finds a sat path j, and the
+             <model_name>_<k_value>_i.output file gives the final answer.
+             If all the paths are unsat, the final .output one returns unsat.
+             */
+            
+            // find out the final .output file returning the answer
+            int dReachi = 0; // the ith possiable path
+            std::string nusuffix1;
+            nusuffix1.assign("_" + string(argv[4]) + "_");
+            std::string outputfilenam;
+            outputfilenam.assign("numodel" + nusuffix1 + "0.output");
+            ifstream smtresfile (outputfilenam);
+            std::string nusuffix2;
+            
+            while (smtresfile.is_open()) {
+                dReachi++;
+                smtresfile.close();
+                smtresfile.clear();
+                nusuffix2.assign(std::to_string(dReachi) + ".output");
+                outputfilenam.assign("numodel" + nusuffix1 + nusuffix2);
+                smtresfile.open(outputfilenam);
+            }
             smtresfile.close();
             smtresfile.clear();
+            
+            dReachi = dReachi - 1;
             nusuffix2.assign(std::to_string(dReachi) + ".output");
             outputfilenam.assign("numodel" + nusuffix1 + nusuffix2);
             smtresfile.open(outputfilenam);
-        }
-        smtresfile.close();
-        smtresfile.clear();
-        
-        dReachi = dReachi - 1;
-        nusuffix2.assign(std::to_string(dReachi) + ".output");
-        outputfilenam.assign("numodel" + nusuffix1 + nusuffix2);
-        smtresfile.open(outputfilenam);
-
-        if (smtresfile.is_open()) {
-            std::string line;
-            getline(smtresfile, line);
-            /*
-            if (line == "sat") {
-                satnum++;
-            } else if (line == "unsat") {
-                unsatnum++;
-            } else {
-                cout << "improper k (unfolding steps) value, please give a different one" << endl;
+            
+            if (smtresfile.is_open()) {
+                std::string line;
+                getline(smtresfile, line);
+                if (line == "sat") {
+                    satnum++;
+                    
+                    vector<string> simressat = simresfile;
+                    simressat.push_back("sat");
+                    assgn_res.push_back(simressat);
+                    simressat.clear();
+                    
+                } else {
+                    unsatnum++;
+                    
+                    vector<string> simresunsat = simresfile;
+                    simresunsat.push_back("unsat");
+                    assgn_res.push_back(simresunsat);
+                    simresunsat.clear();
+                    
+                }
+                smtresfile.close();
+            }else {
+                cout << "Unable to open the dReach returned file" << endl;
                 exit (EXIT_FAILURE);
             }
-             */
-            if (line == "sat") {
-                satnum++;
-            } else {
-                unsatnum++;
-            }
-            smtresfile.close();
-        }else {
-            cout << "Unable to open the dReach returned file" << endl;
-            exit (EXIT_FAILURE);
-        }
 
+        }
+        
+        simsat.clear();
+        simunsat.clear();
+        
+        
 
         // do all the tests
         alldone = true;
@@ -971,14 +1025,10 @@ int main (int argc, char **argv) {
             }
             alldone = alldone && done;
         }
-
+        // clear all used vectors except assgn_res
+        
+    
     }		// loop
-
-
-
-//  cout << "Elapsed cpu time: " << (clock() - tic) / (double)CLOCKS_PER_SEC << endl;
-//
-//  cout << "Elapsed wall time: " << (time(NULL) - start) << endl;
-
+    //cout << assgn_res.size() << endl;
   exit(EXIT_SUCCESS);
 }
