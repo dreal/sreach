@@ -1,6 +1,5 @@
 /***********************************************************************************************
  * Copyright (C) 2014 Qinsi Wang and Edmund M. Clarke.  All rights reserved.
- * Note: the implementation of different statistical testing classes are from the statistical model checker developed by Paolo Zuliani.
  * By using this software the USER indicates that he or she has read, understood and will comply
  * with the following:
  *
@@ -31,4 +30,5 @@
  * ***********************************************************************************************/
 #pragma once
 #include <string>
-void pdrh2drh (std::string const & modelfile);
+#include <vector>
+std::vector<std::string> pdrh2drh (std::string const & modelfile);
