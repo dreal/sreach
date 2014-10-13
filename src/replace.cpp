@@ -1,6 +1,5 @@
 /***********************************************************************************************
  * Copyright (C) 2014 Qinsi Wang and Edmund M. Clarke.  All rights reserved.
- * Note: the implementation of different statistical testing classes are from the statistical model checker developed by Paolo Zuliani.
  * By using this software the USER indicates that he or she has read, understood and will comply
  * with the following:
  *
@@ -60,52 +59,44 @@ vector<string> split(string const & s)
     return rvandval;
 }
 
-void replace (string const & olddrhfile, string const & simresf){
+void replace (string const & olddrhfile, vector<string> & simresf){
 
-  ifstream drhfile (olddrhfile); // the .drh file
-  ifstream simresfile (simresf); // the random variables and their values file
-  ofstream nudrhfile ("numodel.drh");
-
-
-  if (simresfile.is_open() && drhfile.is_open())
-  {
-    string line1, line2;
-
-    while (getline (drhfile, line2))
+    ifstream drhfile (olddrhfile); // the .drh file
+    ofstream nudrhfile ("numodel.drh");
+    
+    
+    if (drhfile.is_open())
     {
+        string line2;
 
-        while (getline (simresfile, line1))
+        while (getline (drhfile, line2))
         {
+        
+            for (unsigned i = 0; i < simresf.size(); i++) {
+         
+                string line1 = simresf[i];
+                vector<string> rvandval = split(line1);
+                string target1 = "(" + rvandval[0] + " ";
+                string target2 = " " + rvandval[0] + " ";
+                string target3 = rvandval[0] + " ";
+                string target4 = " " + rvandval[0];
+                string replace1 = "(" + rvandval[1] + " ";
+                string replace2 = " " + rvandval[1] + " ";
+                string replace3 = rvandval[1] + " ";
+                string replace4 = " " + rvandval[1];
 
-            vector<string> rvandval = split(line1);
-
-            string target1 = "(" + rvandval[0] + " ";
-            string target2 = " " + rvandval[0] + " ";
-            string target3 = rvandval[0] + " ";
-            string target4 = " " + rvandval[0];
-            string replace1 = "(" + rvandval[1] + " ";
-            string replace2 = " " + rvandval[1] + " ";
-            string replace3 = rvandval[1] + " ";
-            string replace4 = " " + rvandval[1];
-
-
-
-            boost::replace_all(line2, target1, replace1);
-            boost::replace_all(line2, target2, replace2);
-            boost::replace_all(line2, target3, replace3);
-            boost::replace_all(line2, target4, replace4);
-
+                boost::replace_all(line2, target1, replace1);
+                boost::replace_all(line2, target2, replace2);
+                boost::replace_all(line2, target3, replace3);
+                boost::replace_all(line2, target4, replace4);
+            
+            }
+            nudrhfile << line2 << endl;
+        
         }
-        nudrhfile << line2 << endl;
-        simresfile.clear();
-        simresfile.seekg(0, ios::beg);
-    }
-    drhfile.close();
-    simresfile.close();
-
-  }
-  else{
-      cout << "Unable to open the simluation result file or the model file. " << endl;
+        drhfile.close();
+    }else{
+      cout << "Unable to open the drh model file. " << endl;
       exit (EXIT_FAILURE);
   }
 
