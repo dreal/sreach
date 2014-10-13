@@ -1,6 +1,5 @@
 /***********************************************************************************************
  * Copyright (C) 2014 Qinsi Wang and Edmund M. Clarke.  All rights reserved.
- * Note: the implementation of different statistical testing classes are from the statistical model checker developed by Paolo Zuliani.
  * By using this software the USER indicates that he or she has read, understood and will comply
  * with the following:
  *
@@ -34,11 +33,12 @@
 
 
 //read in a pdrh file
-//output a txt file containing all random variables and their corresponding
-//distributions, and a drh file
+//output a string vector containing all random variables and their corresponding
+//distributions, and a corresponding drh file
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include "pdrh2drh.hpp"
 
 using std::string;
@@ -46,11 +46,12 @@ using std::ifstream;
 using std::ofstream;
 using std::cout;
 using std::endl;
+using std::vector;
 
-void pdrh2drh (string const & modelfile) {
+vector<string> pdrh2drh (string const & modelfile) {
   string line;
   ifstream myfile1 (modelfile);
-  ofstream myfile2 ("rv.txt");
+  vector<string> myfile2;
   ofstream myfile3 ("model_w_define.drh");
   if (myfile1.is_open())
   {
@@ -59,20 +60,20 @@ void pdrh2drh (string const & modelfile) {
 
       string str = line.substr(0, 2);
       string str2 = line.substr(0, 3);
-      if (str == "B(" || str =="N(" || str =="U(" || str =="E(" || str2 == "DD(")
+      if (str == "B(" || str =="N(" || str =="U(" || str =="E(" || str2 == "DD(" || str2 == "jB(" || str2 == "jN(" || str2 == "jU(" || str2 == "jE(")
       {
-        myfile2 << line << '\n';
+          myfile2.push_back(line);
       }
       else{
         myfile3 << line << '\n';
       }
     }
     myfile1.close();
-    myfile2.close();
     myfile3.close();
   }
   else {
       cout << "Unable to open the given pdrh model file";
       exit (EXIT_FAILURE);
   }
+    return myfile2;
 }
