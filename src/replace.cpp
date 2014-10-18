@@ -39,6 +39,7 @@
 #include "replace.hpp"
 #include <cstdlib>
 
+
 using std::string;
 using std::vector;
 using std::ifstream;
@@ -103,3 +104,50 @@ void replace (string const & olddrhfile, vector<string> & simresf){
   nudrhfile.close();
 
 }
+
+void replace (string const & olddrhfile, vector<string> & simresf, int tid){
+    
+    ifstream drhfile (olddrhfile); // the .drh file
+    string numodelfilename = "numodel_" + std::to_string(tid) + ".drh";
+    ofstream nudrhfile (numodelfilename);
+    
+    
+    if (drhfile.is_open())
+    {
+        string line2;
+        
+        while (getline (drhfile, line2))
+        {
+            
+            for (unsigned i = 0; i < simresf.size(); i++) {
+                
+                string line1 = simresf[i];
+                vector<string> rvandval = split(line1);
+                string target1 = "(" + rvandval[0] + " ";
+                string target2 = " " + rvandval[0] + " ";
+                string target3 = rvandval[0] + " ";
+                string target4 = " " + rvandval[0];
+                string replace1 = "(" + rvandval[1] + " ";
+                string replace2 = " " + rvandval[1] + " ";
+                string replace3 = rvandval[1] + " ";
+                string replace4 = " " + rvandval[1];
+                
+                boost::replace_all(line2, target1, replace1);
+                boost::replace_all(line2, target2, replace2);
+                boost::replace_all(line2, target3, replace3);
+                boost::replace_all(line2, target4, replace4);
+                
+            }
+            nudrhfile << line2 << endl;
+            
+        }
+        drhfile.close();
+    }else{
+        cout << "Unable to open the drh model file. " << endl;
+        exit (EXIT_FAILURE);
+    }
+    
+    nudrhfile.close();
+    
+}
+
