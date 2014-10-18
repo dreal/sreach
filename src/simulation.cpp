@@ -42,6 +42,7 @@
 #include <cstdlib>
 #include <vector>
 #include <sstream>
+#include "evalrv.hpp"
 
 using std::bernoulli_distribution;
 using std::cout;
@@ -201,8 +202,8 @@ vector<string> simulation (vector<string> & distrfile){
       }
       else if (distr == "D")
       {
-          sre = "(DD)(\\s)*(\\()(([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))(\\s)*(,)(\\s)*)*([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*";
-          sre2 = "([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))";
+          sre = "(DD)(\\s)*(\\()(([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))(\\s)*(,)(\\s)*)*([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+)|([-+]?[0-9]*.?[0-9]+)(\\s)*(([-+*/])(\\s)*(0|[-+]?[0-9]*.?[0-9]+))+(\\)))(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*";
+          sre2 = "([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+)|([-+]?[0-9]*.?[0-9]+)(\\s)*([-+*/])(\\s)*([-+]?[0-9]*.?[0-9]+))";
           sre3 = "([a-zA-Z][a-zA-Z0-9_]*)(;)";
           try
           {
@@ -226,8 +227,8 @@ vector<string> simulation (vector<string> & distrfile){
                   
                   boost::sregex_iterator rit (line2.begin(), line2.end(), re2);
                   boost::sregex_iterator rend;
-                  std::vector<float> ddpara1;
-                  std::vector<float> ddpara2;
+                  std::vector<double> ddpara1;
+                  std::vector<double> ddpara2;
                   std::string ddvalstr, ddprobstr;
                   char delimeter(':');
                   
@@ -236,10 +237,20 @@ vector<string> simulation (vector<string> & distrfile){
                       std::string ddres2 = ddres.substr(1, (ddres.length() - 1));
                       std::istringstream iss(ddres2);
                       std::getline(iss, ddvalstr, delimeter);
-                      float ddval = std::strtod(ddvalstr.c_str(), nullptr);
+                      double ddval = std::strtod(ddvalstr.c_str(), nullptr);
                       ddpara1.push_back(ddval);
                       std::getline(iss, ddprobstr);
-                      float ddprob = std::strtod(ddprobstr.c_str(), nullptr);
+                      //cout << ddprobstr << endl;
+                      // call eval.cpp now
+                      double ddprob;
+                      if (ddprobstr.find('+')!=std::string::npos || ddprobstr.find('-')!=std::string::npos || ddprobstr.find('x')!=std::string::npos || ddprobstr.find('/')!=std::string::npos) {
+                          ddprobstr = ddprobstr.substr(1);
+                          ddprob = eval(ddprobstr);
+                          cout << ddprob << endl;
+                      }else{
+                          ddprob = std::strtod(ddprobstr.c_str(), nullptr);
+                          cout << ddprob << endl;
+                      }
                       ddpara2.push_back(ddprob);
                       ++rit;
                       iss.clear();
@@ -267,7 +278,7 @@ vector<string> simulation (vector<string> & distrfile){
                   string Dsample = ddvarname + " " + x_str;
                   assignfile.push_back(Dsample);
                   
-              } else {cout << "Does not match!" << endl; }
+              } else {cout << "Does not match! DD" << endl; }
           } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
               cout << "regex_match failed!" << endl;
           }
