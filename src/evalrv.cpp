@@ -40,6 +40,7 @@
 #include <stack>
 #include <vector>
 #include <stdlib.h>
+#include <algorithm>
 #include "evalrv.hpp"
 
 using namespace std;
@@ -194,46 +195,4 @@ double eval(std::string e)
         }
     }
     return opnd.top();
-}
-
-vector<string> evalrv(vector<string> & currRVfile)
-{
-    vector<string> finalrvfile;
-    
-    for (unsigned j = 0; j < currRVfile.size(); j++) {
-        
-        string line = currRVfile[j];
-            
-        std::string::iterator end_pos = std::remove(line.begin(), line.end(), ' ');
-        line.erase(end_pos, line.end());
-            
-            int i = 0;
-            int linelen = line.length();
-            string nuline = "";
-            while (i <= linelen) {
-                
-                if (line.substr(i, 2) == ":(") {
-                    string expr = "";
-                    while (line.substr(i, 1) != ")") {
-                        i++;
-                        expr += line.substr(i, 1);
-                    }
-                    i++;
-                    double res = eval(expr);
-                    string str = std::to_string(res);
-                    
-                    nuline += ":";
-                    nuline += str;
-                }
-                else{
-                    nuline += line.substr(i, 1);
-                    i++;
-                }
-                    
-            }
-        finalrvfile.push_back(line);
-        
-        }
-
-    return finalrvfile;
 }
