@@ -37,4 +37,4 @@ char cmp(char a,char b);
 double calc(double a, double b, char op);
 bool isoptr(char c);
 double eval(std::string e);
-std::vector<std::string> evalrv(std::vector<std::string> & currRVfile);
+//std::vector<std::string> evalrv(std::vector<std::string> & currRVfile);
