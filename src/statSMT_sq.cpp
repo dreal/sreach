@@ -896,20 +896,20 @@ int main (int argc, char **argv) {
         
         if (presimfile.size() > 0){
             vector<string> sndrvfile = prereplace(fstrvfile, presimfile);
-            vector<string> finrvfile = evalrv(sndrvfile);
-            simresfile = simulation(finrvfile);
+            //vector<string> finrvfile = evalrv(sndrvfile);
+            simresfile = simulation(sndrvfile);
             sndrvfile.clear();
-            finrvfile.clear();
+            //finrvfile.clear();
             presimfile.clear();
         } else {
             simresfile = simulation(fstrvfile);
         }
         
-        
+        /*
         for (unsigned long i = 0; i < simresfile.size(); ++i) {
             cout << simresfile[i] << endl;
         }
-        
+        */
         
         // check whether (assgn2rv1, ..., assgn2rvk, sat/unsat) already exists
         simsat = simresfile;
