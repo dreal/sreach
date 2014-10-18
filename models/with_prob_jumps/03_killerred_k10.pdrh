@@ -1,0 +1,381 @@
+// pdrh created by Qinsi Wang at Oct. 2014
+
+// system parameters
+#define N_a 6.022e23
+#define Vcell 6.7e-16
+#define k_RNAsynthesis (0.347/(N_a * Vcell))
+#define k_RNAdegradation 0.0039
+#define k_KRsynthesis 0.0032
+#define k_KRmature 4.81e-5
+#define k_KRdegradation 7.7e-6
+#define k_KRfluorescence 3.5e8
+#define k_KRinternalconversion 6.9e10
+#define k_KRnonradiativedeactivation 50
+#define k_KRsoxdeactivation1 (9 * 1e-4 / 0.15)
+#define k_KRexcitation 1.72e3
+#define k_KRSdegradation 7.7e-6
+#define k_KRintersystemcrossing 6.6e6
+#define k_KRSstardegradation 7.7e-6
+#define k_KRsoxdeactivation2 1e-4 / 0.15
+#define k_KRTstardegradation 7.7e-6
+#define k_SOD 1e-200
+#define SOD_Kcat 1667
+#define SOD_conc (1e3 / (N_a * Vcell))
+#define V_maxSOD (SOD_Kcat * SOD_conc)
+#define K_m 2e-6
+#define SOX_thres 5e-4 //according to Cheryl, between 100um and 1mM
+#define SODinit 0 // ?
+#define SODsat 10 //?
+#define maxlambda_genome 100
+#define L 1 // light intensity
+#define N_copy 1 // num of DNA copies
+
+//probabilistic jumps
+DD(1:0.9, 2:0.1) pjump1;
+DD(1:0.2, 2:0.2, 3:0.6) pjump2;
+DD(1:pjump3rv, 2:(1-pjump3rv)) pjump3;
+DD(1:pjump4rv, 2:(1-pjump4rv)) pjump4;
+
+//jU(0, 0.2) pjump2rv1;
+//jU(0, 0.2) pjump2rv2;
+jU(0, 1) pjump3rv;
+jU(0.8, 1) pjump4rv;
+
+
+// timing parameters (can be modified)
+#define t_genk1 1
+#define t_genk2 1
+#define t_addIPTG 1
+#define t_rmIPTG1 5 
+#define t_lighton 2
+#define t_lightoff1 2
+#define t_lightoff2 2
+#define t_rmIPTG2 5
+#define t_rmIPTG3 5
+
+
+
+
+// system variables
+[0, 100] time; // dreach default
+[-1, 10] tau; // time
+[-1, 10] tau2;
+[-1, 10] lambda_genome;
+[-1, 10] IPTG;
+[-1, 100] Light;
+[-1, 10] DNA;
+[-1, 10] DNA_lambda;
+[-1, 10] mRNA;
+[-1, 10] KRim;
+[-1, 10] KRmdS;
+[-1, 10] KRmdSstar;
+[-1, 10] KRmdTstar;
+[-1, 10] SOX;
+[-1, 10] SOXsod;
+[-1, 10] SOD;
+//[-10, 1000] N_copy;
+//[0, 100] tot_t;
+
+// modes 
+{ mode 1;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        d/dt[mRNA] = 0;
+        d/dt[KRim] = 0;
+        d/dt[KRmdS] = 0;
+        d/dt[KRmdSstar] = 0;
+        d/dt[KRmdTstar] = 0;
+        d/dt[SOX] = 0;
+        d/dt[SOXsod] = 0;
+        d/dt[SOD] = 0;
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+
+  jump:
+        (tau >= t_genk1) ==> @2 (and (tau' = 0) (lambda_genome' = 1) (IPTG' = IPTG) (Light' = Light) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+}
+
+{ mode 2;
+
+  invt:
+       (lambda_genome <= maxlambda_genome); 
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 1;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        d/dt[mRNA] = 0;
+        d/dt[KRim] = 0;
+        d/dt[KRmdS] = 0;
+        d/dt[KRmdSstar] = 0;
+        d/dt[KRmdTstar] = 0;
+        d/dt[SOX] = 0;
+        d/dt[SOXsod] = 0;
+        d/dt[SOD] = 0;
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+        (tau >= t_genk2) ==> @3 (and (tau' = 0) (lambda_genome' = 0) (IPTG' = IPTG) (Light' = Light) (DNA' = 0) (DNA_lambda' = 1) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+}
+
+{ mode 3;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        d/dt[mRNA] = 0;
+        d/dt[KRim] = 0;
+        d/dt[KRmdS] = 0;
+        d/dt[KRmdSstar] = 0;
+        d/dt[KRmdTstar] = 0;
+        d/dt[SOX] = 0;
+        d/dt[SOXsod] = 0;
+        d/dt[SOD] = 0;
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+        (tau >= t_addIPTG) ==> @4 (and (tau' = 0) (lambda_genome' = lambda_genome) (IPTG' = 1) (Light' = Light) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+}
+
+{ mode 4;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        d/dt[mRNA] = IPTG * k_RNAsynthesis * N_copy - k_RNAdegradation * mRNA;
+        d/dt[KRim] = k_KRsynthesis * mRNA - (k_KRmature + k_KRdegradation) * KRim;
+        d/dt[KRmdS] = k_KRmature * KRim + k_KRfluorescence * KRmdSstar + k_KRinternalconversion * KRmdSstar + k_KRnonradiativedeactivation * KRmdTstar + k_KRsoxdeactivation1 * KRmdTstar - k_KRexcitation * KRmdS - k_KRSdegradation * KRmdS;
+        d/dt[KRmdSstar] = 0;
+        d/dt[KRmdTstar] = 0;
+        d/dt[SOX] = 0;
+        d/dt[SOXsod] = 0;
+        d/dt[SOD] = 0;
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+	(and (pjump1 = 2) (tau >= t_rmIPTG1)) ==> @6 (and (tau' = 0) (lambda_genome' = lambda_genome) (IPTG' = 0) (Light' = Light) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+	(and (pjump1 = 1) (tau2 >= t_lighton)) ==> @5 (and (tau' = 0) (lambda_genome' = lambda_genome) (IPTG' = IPTG) (Light' = L) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SODsat) (tau2' = 0));
+}
+
+{ mode 5;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        d/dt[mRNA] = IPTG * k_RNAsynthesis * N_copy - k_RNAdegradation * mRNA;
+        d/dt[KRim] = k_KRsynthesis * mRNA - (k_KRmature + k_KRdegradation) * KRim;
+        d/dt[KRmdS] = k_KRmature * KRim + k_KRfluorescence * KRmdSstar + k_KRinternalconversion * KRmdSstar + k_KRnonradiativedeactivation * KRmdTstar + k_KRsoxdeactivation1 * KRmdTstar - k_KRexcitation * KRmdS - k_KRSdegradation * KRmdS;
+        d/dt[KRmdSstar] = k_KRexcitation * KRmdS - k_KRfluorescence * KRmdSstar - k_KRinternalconversion * KRmdSstar - k_KRintersystemcrossing * KRmdSstar - k_KRSstardegradation * KRmdSstar;
+        d/dt[KRmdTstar] = k_KRintersystemcrossing * KRmdSstar - k_KRnonradiativedeactivation * KRmdTstar - k_KRsoxdeactivation1 * KRmdTstar - k_KRsoxdeactivation2 * KRmdTstar - k_KRTstardegradation * KRmdTstar;
+        d/dt[SOX] = k_KRsoxdeactivation1 * KRmdTstar + k_KRsoxdeactivation2 * KRmdTstar - k_SOD * V_maxSOD * (SOX / (K_m + SOX));
+        d/dt[SOXsod] = k_SOD * V_maxSOD * (SOX / (K_m + SOX));
+        d/dt[SOD] = 0; //?
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+        (and (pjump2 = 1) (tau >= t_lightoff1)) ==> @7 (and (tau' = 0) (lambda_genome' = lambda_genome) (IPTG' = IPTG) (Light' = 0) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+	(and (pjump2 = 2) (tau2 >= t_rmIPTG2))  ==> @8 (and (tau' = 0) (lambda_genome' = lambda_genome) (IPTG' = 0) (Light' = Light) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+	//(and (SOX >= SOX_thres) (pjump2 = 3)) ==> @11 (and (tau' = -1) (lambda_genome' = -1) (IPTG' = -1) (Light' = -1) (DNA' = -1) (DNA_lambda' = -1) (mRNA' = -1) (KRim' = -1) (KRmdS' = -1) (KRmdSstar' = -1) (KRmdTstar' = -1) (SOX' = -1) (SOXsod' = -1) (SOD' = -1) (tot_t' = tot_t));
+}
+
+{ mode 6;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        //d/dt[mRNA] = 0 - k_RNAdegradation * mRNA;
+	d/dt[mRNA] = IPTG * k_RNAsynthesis * N_copy - k_RNAdegradation * mRNA;
+        d/dt[KRim] = k_KRsynthesis * mRNA - (k_KRmature + k_KRdegradation) * KRim;
+        d/dt[KRmdS] = k_KRmature * KRim + k_KRfluorescence * KRmdSstar + k_KRinternalconversion * KRmdSstar + k_KRnonradiativedeactivation * KRmdTstar + k_KRsoxdeactivation1 * KRmdTstar - k_KRexcitation * KRmdS - k_KRSdegradation * KRmdS;
+        d/dt[KRmdSstar] = 0;
+        d/dt[KRmdTstar] = 0;
+        d/dt[SOX] = 0;
+        d/dt[SOXsod] = 0;
+        d/dt[SOD] = 0;
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+        (and (mRNA = 0) (KRim = 0) (KRmdS = 0)) ==> @3 (and (tau' = 0) (lambda_genome' = lambda_genome) (IPTG' = IPTG) (Light' = Light) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+}
+
+{ mode 7;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        d/dt[mRNA] = IPTG * k_RNAsynthesis * N_copy - k_RNAdegradation * mRNA;
+        d/dt[KRim] = k_KRsynthesis * mRNA - (k_KRmature + k_KRdegradation) * KRim;
+        d/dt[KRmdS] = k_KRmature * KRim + k_KRfluorescence * KRmdSstar + k_KRinternalconversion * KRmdSstar + k_KRnonradiativedeactivation * KRmdTstar + k_KRsoxdeactivation1 * KRmdTstar - k_KRexcitation * KRmdS - k_KRSdegradation * KRmdS;
+        d/dt[KRmdSstar] = k_KRexcitation * KRmdS - k_KRfluorescence * KRmdSstar - k_KRinternalconversion * KRmdSstar - k_KRintersystemcrossing * KRmdSstar - k_KRSstardegradation * KRmdSstar;
+        d/dt[KRmdTstar] = k_KRintersystemcrossing * KRmdSstar - k_KRnonradiativedeactivation * KRmdTstar - k_KRsoxdeactivation1 * KRmdTstar - k_KRsoxdeactivation2 * KRmdTstar - k_KRTstardegradation * KRmdTstar;
+        d/dt[SOX] = 0 - k_SOD * V_maxSOD * (SOX / (K_m + SOX));
+        d/dt[SOXsod] = k_SOD * V_maxSOD * (SOX / (K_m + SOX)); //?
+        d/dt[SOD] = 0; //?
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+	(and (pjump3 = 1) (tau >= t_rmIPTG3)) ==> @9 (and (tau' = 0) (lambda_genome' = lambda_genome) (IPTG' = 0) (Light' = Light) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+	//(and (SOX >= SOX_thres) (pjump3 = 2)) ==> @11 (and (tau' = -1) (lambda_genome' = -1) (IPTG' = -1) (Light' = -1) (DNA' = -1) (DNA_lambda' = -1) (mRNA' = -1) (KRim' = -1) (KRmdS' = -1) (KRmdSstar' = -1) (KRmdTstar' = -1) (SOX' = -1) (SOXsod' = -1) (SOD' = -1) (tot_t' = tot_t));
+}
+
+{ mode 8;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        //d/dt[mRNA] = 0 - k_RNAdegradation * mRNA;
+	d/dt[mRNA] = IPTG * k_RNAsynthesis * N_copy - k_RNAdegradation * mRNA;
+        d/dt[KRim] = k_KRsynthesis * mRNA - (k_KRmature + k_KRdegradation) * KRim;
+        d/dt[KRmdS] = k_KRmature * KRim + k_KRfluorescence * KRmdSstar + k_KRinternalconversion * KRmdSstar + k_KRnonradiativedeactivation * KRmdTstar + k_KRsoxdeactivation1 * KRmdTstar - k_KRexcitation * KRmdS - k_KRSdegradation * KRmdS;
+        d/dt[KRmdSstar] = k_KRexcitation * KRmdS - k_KRfluorescence * KRmdSstar - k_KRinternalconversion * KRmdSstar - k_KRintersystemcrossing * KRmdSstar - k_KRSstardegradation * KRmdSstar;
+        d/dt[KRmdTstar] = k_KRintersystemcrossing * KRmdSstar - k_KRnonradiativedeactivation * KRmdTstar - k_KRsoxdeactivation1 * KRmdTstar - k_KRsoxdeactivation2 * KRmdTstar - k_KRTstardegradation * KRmdTstar;
+        d/dt[SOX] = 0 - k_SOD * V_maxSOD * (SOX / (K_m + SOX));
+        d/dt[SOXsod] = k_SOD * V_maxSOD * (SOX / (K_m + SOX)); //?
+        d/dt[SOD] = 0; //?
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+        (and (pjump4 = 2) (tau >= t_lightoff2)) ==> @10 (and (tau' = 0) (lambda_genome' = lambda_genome) (IPTG' = IPTG) (Light' = 0) (DNA' = DNA) (DNA_lambda' = DNA_lambda) (mRNA' = mRNA) (KRim' = KRim) (KRmdS' = KRmdS) (KRmdSstar' = KRmdSstar) (KRmdTstar' = KRmdTstar) (SOX' = SOX) (SOXsod' = SOXsod) (SOD' = SOD) (tau2' = 0));
+	//(and (SOX >= SOX_thres) (pjump4 = 1)) ==> @11 (and (tau' = -1) (lambda_genome' = -1) (IPTG' = -1) (Light' = -1) (DNA' = -1) (DNA_lambda' = -1) (mRNA' = -1) (KRim' = -1) (KRmdS' = -1) (KRmdSstar' = -1) (KRmdTstar' = -1) (SOX' = -1) (SOXsod' = -1) (SOD' = -1) (tot_t' = tot_t));
+}
+
+{ mode 9;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        //d/dt[mRNA] = 0 - k_RNAdegradation * mRNA;
+	d/dt[mRNA] = IPTG * k_RNAsynthesis * N_copy - k_RNAdegradation * mRNA;
+        d/dt[KRim] = k_KRsynthesis * mRNA - (k_KRmature + k_KRdegradation) * KRim;
+        d/dt[KRmdS] = k_KRmature * KRim + k_KRfluorescence * KRmdSstar + k_KRinternalconversion * KRmdSstar + k_KRnonradiativedeactivation * KRmdTstar + k_KRsoxdeactivation1 * KRmdTstar - k_KRexcitation * KRmdS - k_KRSdegradation * KRmdS;
+        d/dt[KRmdSstar] = k_KRexcitation * KRmdS - k_KRfluorescence * KRmdSstar - k_KRinternalconversion * KRmdSstar - k_KRintersystemcrossing * KRmdSstar - k_KRSstardegradation * KRmdSstar;
+        d/dt[KRmdTstar] = k_KRintersystemcrossing * KRmdSstar - k_KRnonradiativedeactivation * KRmdTstar - k_KRsoxdeactivation1 * KRmdTstar - k_KRsoxdeactivation2 * KRmdTstar - k_KRTstardegradation * KRmdTstar;
+        d/dt[SOX] = 0 - k_SOD * V_maxSOD * (SOX / (K_m + SOX));
+        d/dt[SOXsod] = k_SOD * V_maxSOD * (SOX / (K_m + SOX)); //?
+        d/dt[SOD] = 0; //?
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+        (SOX >= SOX_thres) ==> @11 (and (tau' = -1) (lambda_genome' = -1) (IPTG' = -1) (Light' = -1) (DNA' = -1) (DNA_lambda' = -1) (mRNA' = -1) (KRim' = -1) (KRmdS' = -1) (KRmdSstar' = -1) (KRmdTstar' = -1) (SOX' = -1) (SOXsod' = -1) (SOD' = -1) (tau2' = -1)); 
+}
+
+{ mode 10;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 1;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        //d/dt[mRNA] = 0 - k_RNAdegradation * mRNA;
+	d/dt[mRNA] = IPTG * k_RNAsynthesis * N_copy - k_RNAdegradation * mRNA;
+        d/dt[KRim] = k_KRsynthesis * mRNA - (k_KRmature + k_KRdegradation) * KRim;
+        d/dt[KRmdS] = k_KRmature * KRim + k_KRfluorescence * KRmdSstar + k_KRinternalconversion * KRmdSstar + k_KRnonradiativedeactivation * KRmdTstar + k_KRsoxdeactivation1 * KRmdTstar - k_KRexcitation * KRmdS - k_KRSdegradation * KRmdS;
+        d/dt[KRmdSstar] = k_KRexcitation * KRmdS - k_KRfluorescence * KRmdSstar - k_KRinternalconversion * KRmdSstar - k_KRintersystemcrossing * KRmdSstar - k_KRSstardegradation * KRmdSstar;
+        d/dt[KRmdTstar] = k_KRintersystemcrossing * KRmdSstar - k_KRnonradiativedeactivation * KRmdTstar - k_KRsoxdeactivation1 * KRmdTstar - k_KRsoxdeactivation2 * KRmdTstar - k_KRTstardegradation * KRmdTstar;
+        d/dt[SOX] = 0 - k_SOD * V_maxSOD * (SOX / (K_m + SOX));
+        d/dt[SOXsod] = k_SOD * V_maxSOD * (SOX / (K_m + SOX)); //?
+        d/dt[SOD] = 0; //?
+	//d/dt[tot_t] = 1;
+	d/dt[tau2] = 1;
+
+  jump:
+        (SOX >= SOX_thres) ==> @11 (and (tau' = -1) (lambda_genome' = -1) (IPTG' = -1) (Light' = -1) (DNA' = -1) (DNA_lambda' = -1) (mRNA' = -1) (KRim' = -1) (KRmdS' = -1) (KRmdSstar' = -1) (KRmdTstar' = -1) (SOX' = -1) (SOXsod' = -1) (SOD' = -1) (tau2' = -1)); 
+}
+
+{ mode 11;
+
+  invt:
+        
+  flow:
+        d/dt[tau] = 0;
+        d/dt[lambda_genome] = 0;
+        d/dt[IPTG] = 0;
+        d/dt[Light] = 0;
+        d/dt[DNA] = 0;
+        d/dt[DNA_lambda] = 0;
+        d/dt[mRNA] = 0;
+        d/dt[KRim] = 0;
+        d/dt[KRmdS] = 0;
+        d/dt[KRmdSstar] = 0;
+        d/dt[KRmdTstar] = 0;
+        d/dt[SOX] = 0;
+        d/dt[SOXsod] = 0;
+        d/dt[SOD] = 0;
+	//d/dt[tot_t] = 0;
+	d/dt[tau2] = 0;
+
+  jump:
+        
+}
+
+
+init:
+@1	(and (tau = 0) (lambda_genome = 0) (IPTG = 0) (Light = 0) (DNA = 1) (DNA_lambda = 0) (mRNA = 0) (KRim = 0) (KRmdS = 0) (KRmdSstar = 0) (KRmdTstar = 0) (SOX = 0) (SOXsod = 0) (SOD = SODinit) (tau2 = 0));
+
+goal:
+@11	(and (tau <= -1) (DNA <= -1)); 
