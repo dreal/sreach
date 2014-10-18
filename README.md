@@ -27,7 +27,7 @@ Compile
 
     mkdir build
     cd build
-    cmake ../src
+    cmake -DCMAKE_CXX_COMPILER=g++-4.9 -DCMAKE_C_COMPILER=gcc-4.9 ../src
     make
 
 We have tested them under Mac OSX v10.9.2, and Ubuntu 12.04.
@@ -54,7 +54,8 @@ For example, try the following command (the path for dReach needs to be changed)
     ./sreach ../statistical_test/test01 \\
                  ../models/bouncing_ball_with_drag.pdrh \\
                  ~/Desktop/qinsiw/sreach/dreal/bin/dReach \\
-                 8
+                 8 \\
+                 0.001
 
 The final output should be the dReach output followed by something like:
 
