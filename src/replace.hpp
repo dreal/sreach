@@ -31,5 +31,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <algorithm>
 std::vector<std::string> split(std::string const & s);
 void replace (std::string const & olddrhfile, std::vector<std::string> & simresf);
+void replace (std::string const & olddrhfile, std::vector<std::string> & simresf, int tid);
