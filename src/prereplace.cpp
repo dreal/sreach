@@ -73,6 +73,7 @@ vector<string> prereplace (vector<string> & oldrvfile, vector<string> & presimre
             string target6 = " " + rvandval[0] + ",";
             string target7 = ":" + rvandval[0] + " ";
             string target8 = ":" + rvandval[0] + ",";
+            string target9 = "(" + rvandval[0];
             
             string replace1 = "(" + rvandval[1] + " ";
             string replace2 = " " + rvandval[1] + " ";
@@ -82,6 +83,7 @@ vector<string> prereplace (vector<string> & oldrvfile, vector<string> & presimre
             string replace6 = " " + rvandval[1] + ",";
             string replace7 = ":" + rvandval[1] + " ";
             string replace8 = ":" + rvandval[1] + ",";
+            string replace9 = "(" + rvandval[1];
             
             
             boost::replace_all(line2, target1, replace1);
@@ -92,6 +94,7 @@ vector<string> prereplace (vector<string> & oldrvfile, vector<string> & presimre
             boost::replace_all(line2, target6, replace6);
             boost::replace_all(line2, target7, replace7);
             boost::replace_all(line2, target8, replace8);
+            boost::replace_all(line2, target9, replace9);
         }
         if (str != "j"){
             nurvfile.push_back(line2);

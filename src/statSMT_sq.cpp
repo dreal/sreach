@@ -990,7 +990,7 @@ int main (int argc, char **argv) {
             smtresfile.open(outputfilenam);
             
             if (smtresfile.is_open()) {
-                cout << "here" << endl;
+                //cout << "here" << endl;
                 std::string line;
                 getline(smtresfile, line);
                 if (line == "sat") {
