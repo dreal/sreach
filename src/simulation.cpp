@@ -61,8 +61,8 @@ vector<string> simulation (vector<string> & distrfile){
 
     vector<string> assignfile;
 
-    string s, sre, sre2, sre3;
-    boost::regex re, re2, re3;
+    string s, sre, sre2, sre3, sre4;
+    boost::regex re, re2, re3, re4;
     boost::cmatch matches, matches2, matches3;
     
    
@@ -70,6 +70,57 @@ vector<string> simulation (vector<string> & distrfile){
     for (unsigned i = 0; i < distrfile.size(); i++){
       
       string line2 = distrfile[i];
+        
+        //cout << line2 << endl;
+        
+        sre4 = "(\\()[-+]?[0-9]+(.[0-9]+)?(\\s)*[-+*/](\\s)*[0-9]+(.[0-9]+)?(\\))";
+        try
+        {
+            re4 = sre4;
+        }
+        catch (boost::regex_error& e)
+        {
+            cout << sre4 << " is not a valid regular expression: \""
+            << e.what() << "\"" << endl;
+        }
+        vector<string> targets;
+        vector<string> replaces;
+        
+        while (line2.find('+')!=std::string::npos || line2.find('-')!=std::string::npos || line2.find('*')!=std::string::npos || line2.find('/')!=std::string::npos)
+        {
+            boost::sregex_iterator rit3 (line2.begin(), line2.end(), re4);
+            boost::sregex_iterator rend3;
+            while (rit3!=rend3) {
+                std::string equation = rit3->str();
+                targets.push_back(equation);
+                //cout << equation << endl;
+                std::string::iterator end_pos = std::remove(equation.begin(), equation.end(), ' ');
+                equation.erase(end_pos, equation.end());
+                double equationvalue = eval(equation);
+                std::string equvalstr = std::to_string(equationvalue);
+                replaces.push_back(equvalstr);
+                //cout << equvalstr << endl;
+                ++rit3;
+            }
+            if (targets.size() != replaces.size()) {
+                cout << "something is wrong with boost regex find" << endl;
+                break;
+            }else{
+                for (unsigned long i = 0; i < replaces.size(); ++i) {
+                    
+                    size_t pos = line2.find(targets[i]);
+                    line2.replace(pos, targets[i].length(), replaces[i]);
+                    //s = boost::regex_replace(s, targets[i], replaces[i]);
+                    //cout << targets[i] << replaces[i] << endl;
+                }
+                //cout << line2 << endl;
+            }
+            targets.clear();
+            replaces.clear();
+        }
+
+
+        
       string distr = line2.substr(0,1);
 
       if (distr == "B")
@@ -202,8 +253,8 @@ vector<string> simulation (vector<string> & distrfile){
       }
       else if (distr == "D")
       {
-          sre = "(DD)(\\s)*(\\()(([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))(\\s)*(,)(\\s)*)*([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+)|([-+]?[0-9]*.?[0-9]+)(\\s)*(([-+*/])(\\s)*(0|[-+]?[0-9]*.?[0-9]+))+(\\)))(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*";
-          sre2 = "([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+)|([-+]?[0-9]*.?[0-9]+)(\\s)*([-+*/])(\\s)*([-+]?[0-9]*.?[0-9]+))";
+          sre = "(DD)(\\s)*(\\()(([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))(\\s)*(,)(\\s)*)*([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))(\\s)*(\\))(\\s)*([a-zA-Z][a-zA-Z0-9_]*)(;)(\\s)*";
+          sre2 = "([-+]?[0-9]*.?[0-9]+)(\\s)*(:)(\\s)*(1|(0.[0-9]+))";
           sre3 = "([a-zA-Z][a-zA-Z0-9_]*)(;)";
           try
           {
@@ -227,8 +278,8 @@ vector<string> simulation (vector<string> & distrfile){
                   
                   boost::sregex_iterator rit (line2.begin(), line2.end(), re2);
                   boost::sregex_iterator rend;
-                  std::vector<double> ddpara1;
-                  std::vector<double> ddpara2;
+                  std::vector<float> ddpara1;
+                  std::vector<float> ddpara2;
                   std::string ddvalstr, ddprobstr;
                   char delimeter(':');
                   
@@ -237,20 +288,10 @@ vector<string> simulation (vector<string> & distrfile){
                       std::string ddres2 = ddres.substr(1, (ddres.length() - 1));
                       std::istringstream iss(ddres2);
                       std::getline(iss, ddvalstr, delimeter);
-                      double ddval = std::strtod(ddvalstr.c_str(), nullptr);
+                      float ddval = std::strtod(ddvalstr.c_str(), nullptr);
                       ddpara1.push_back(ddval);
                       std::getline(iss, ddprobstr);
-                      //cout << ddprobstr << endl;
-                      // call eval.cpp now
-                      double ddprob;
-                      if (ddprobstr.find('+')!=std::string::npos || ddprobstr.find('-')!=std::string::npos || ddprobstr.find('x')!=std::string::npos || ddprobstr.find('/')!=std::string::npos) {
-                          ddprobstr = ddprobstr.substr(1);
-                          ddprob = eval(ddprobstr);
-                          cout << ddprob << endl;
-                      }else{
-                          ddprob = std::strtod(ddprobstr.c_str(), nullptr);
-                          cout << ddprob << endl;
-                      }
+                      float ddprob = std::strtod(ddprobstr.c_str(), nullptr);
                       ddpara2.push_back(ddprob);
                       ++rit;
                       iss.clear();
@@ -278,7 +319,7 @@ vector<string> simulation (vector<string> & distrfile){
                   string Dsample = ddvarname + " " + x_str;
                   assignfile.push_back(Dsample);
                   
-              } else {cout << "Does not match! DD" << endl; }
+              } else {cout << "Does not match!" << endl; }
           } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<std::logic_error> > &) {
               cout << "regex_match failed!" << endl;
           }
