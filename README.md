@@ -1,8 +1,3 @@
-<a href="https://scan.coverity.com/projects/1715">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/1715/badge.svg"/>
-</a>
-
 ``SReach`` is a Bounded Model Checker for hybrid systems with parametric uncertainty, and probabilistic hybrid automata with addtional randomness. It combines dreal/dreach and statistical analyzing methods.
 
 Installation
