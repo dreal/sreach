@@ -877,7 +877,7 @@ int main (int argc, char **argv) {
     // build the command lines for dReach
     // still wait for the drh model after sampling according to the distributions
     std::string dReachpath = string(argv[3]) + " ";
-    std::string dReachopt1 = "-k";
+    std::string dReachopt1 = "-l 3 -u";
     std::string dReachpara = " " + string(argv[4]);
     std::string dReachopt2 = " -precision=" + string(argv[5]);
     // base command for running dreach
