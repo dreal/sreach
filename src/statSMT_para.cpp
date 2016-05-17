@@ -31,17 +31,6 @@
  * ***********************************************************************************************/
 
 
-/**
- ** the command line is as follows:
- statsmt <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model>
-
- where:
- <testfile> is a text file containing a sequence of test specifications, give the path to it;
- <prob_drh-modelfile> is the file name and path of the probilistical extension model of the dreach model;
- <dReach> is the dReach executable, give the path to it;
- <k-unfolding_steps_for_dreach_model> is the given steps to unfold the probabilistic hybrid system.
- **/
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -765,11 +754,12 @@ int main (int argc, char **argv) {
 
     const string USAGE =
 
-    "\nUsage: sreach_para <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model> <precision>\n\n"
+    //"\nUsage: sreach_para <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model> <precision>\n\n"
+    "\nUsage: sreach_para <testfile> <prob_drh-modelfile> <k-unfolding_steps_for_dreach_model> <precision>\n\n"
     "where:\n"
     "      <testfile> is a text file containing a sequence of test specifications, give the path to it;\n"
     "      <prob_drh-modelfile> is the file name and path of the probilistical extension model of the dreach model;\n"
-    "      <dReach> is the dReach executable, give the path to it;\n"
+    //"      <dReach> is the dReach executable, give the path to it;\n"
     "   <k-unfolding_steps_for_dreach_model> is the given steps to unfold the probabilistic hybrid system;\n"
     "   <precision> indicates the delta value for dReach.\n\n"
     "Available test specifications: \n\n"
@@ -872,7 +862,8 @@ int main (int argc, char **argv) {
     /** for the third,forth, and fifth arguments: **/
     // build the command lines for dReach
     // still wait for the drh model after sampling according to the distributions
-    std::string dReachpath = string(argv[3]) + " ";
+    //std::string dReachpath = string(argv[3]) + " ";
+    std::string dReachpath = "dreach ";
     std::string dReachopt1 = "-l 3 -u";
     std::string dReachpara = " " + string(argv[4]);
     std::string dReachopt2 = " -precision=" + string(argv[5]);
