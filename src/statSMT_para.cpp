@@ -1006,6 +1006,18 @@ int main (int argc, char **argv) {
                     smtresfile.open(outputfilenam);
            	 }
 
+/* when dreach considers no paths at all, we will have k = -1 at this time.
+This means that this hybrid system instance is unsat. */
+
+            if (k == -1) {
+	            vector<string> simresunsat = simresfile;
+                    simresunsat.push_back("unsat");
+                    //assgn_res.push_back(simresunsat);
+                    samres[tid] = simresunsat;
+                    simresunsat.clear();
+            } else {
+
+
 /* then, 
             find out the final .output file with the current k returning the answer
             explore files in a forward manner */
@@ -1054,6 +1066,7 @@ int main (int argc, char **argv) {
                     cout << "Unable to open the dReach returned file" << endl;
                     exit (EXIT_FAILURE);
                 }
+              }
             }
             
             simresfile.clear();
