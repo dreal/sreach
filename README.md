@@ -6,8 +6,9 @@ Installation
 Required Packages
 -----------------
 
+ - Clang-omp
  - [GSL](GNU Scientific Library)
- - [Boost]
+ - [Boost] (Link with libc++)
  - [CMake]
  - [dReal] and [dReach]
 
@@ -22,25 +23,22 @@ Compile
 
     mkdir build
     cd build
-    cmake -DCMAKE_CXX_COMPILER=g++-4.9 -DCMAKE_C_COMPILER=gcc-4.9 ../src
+    cmake -DCMAKE_CXX_COMPILER=clang-omp++ ../src
     make
 
-We have tested them under Ubuntu 12.04, and Mac OSX v10.9.2.
-``SReach`` uses the GNU Scientific Library (GSL), so you need that
-to be installed.
+We have tested them under Ubuntu 12.04, and Mac OSX EI Capitan v10.11.5.
 
 Usage
 =====
 
 The command line is as follows:
 
-     <testfile> <prob_drh-modelfile> <dReach> <k-unfolding_steps_for_dreach_model> <precision>
+     <testfile> <prob_drh-modelfile> <k-unfolding_steps_for_dreach_model> <precision>
 
 where:
 
  - ``<testfile>`` is a text file containing a sequence of test specifications, give the path to it
  - ``<prob_drh-modelfile>`` is the file name and path of the probabilistic extension model of the dreach model
- - ``<dReach>`` is the dReach executable, give the path to it
  - ``<k-unfolding_steps_for_dreach_model>`` is the given steps to unfold the probabilistic hybrid system
  - ``<precision>`` is the given \delta for the \delta-decision procedure dReal/dReach
 
@@ -48,7 +46,6 @@ For example, try the following command (the path for dReach needs to be changed)
 
     ./sreach_sq(or sreach_para) ../statistical_test/test01 \\
                  ../models/bouncing_ball_with_drag.pdrh \\
-                 ~/Desktop/qinsiw/sreach/dreal/bin/dReach \\
                  8 \\
                  0.001
 
