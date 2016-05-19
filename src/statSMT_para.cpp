@@ -48,6 +48,7 @@
 #include <boost/lexical_cast.hpp>
 #include <ctime>
 #include <typeinfo>
+#include <unistd.h>
 #include "pdrh2drh.hpp"
 #include "presim.hpp"
 #include "prereplace.hpp"
@@ -759,7 +760,7 @@ int main (int argc, char **argv) {
     "where:\n"
     "      <testfile> is a text file containing a sequence of test specifications, give the path to it;\n"
     "      <prob_drh-modelfile> is the file name and path of the probilistical extension model of the dreach model;\n"
-    //"      <dReach> is the dReach executable, give the path to it;\n"
+    "      <dReach> is the dReach executable, give the path to it;\n"
     "   <k-unfolding_steps_for_dreach_model> is the given steps to unfold the probabilistic hybrid system;\n"
     "   <precision> indicates the delta value for dReach.\n\n"
     "Available test specifications: \n\n"
@@ -790,7 +791,7 @@ int main (int argc, char **argv) {
     vector<Test *> myTests;	// list of tests to perform
     
 
-    if (argc != 5) {
+    if (argc != 6) {
         cout << USAGE << endl;
         cout << "Compiled for OpenMP. Maximum number of threads: " << omp_get_max_threads() << endl << endl;
         exit(EXIT_FAILURE);
@@ -862,9 +863,9 @@ int main (int argc, char **argv) {
     /** for the third,forth, and fifth arguments: **/
     // build the command lines for dReach
     // still wait for the drh model after sampling according to the distributions
-    //std::string dReachpath = string(argv[3]) + " ";
-    std::string dReachpath = "dreach ";
-    std::string dReachopt1 = "-l 3 -u";
+    std::string dReachpath = string(argv[3]) + " ";
+    //std::string dReachpath = "dreach ";
+    std::string dReachopt1 = "-u";
     std::string dReachpara = " " + string(argv[4]);
     std::string dReachopt2 = " -precision=" + string(argv[5]);
     // base command for running dreach
@@ -971,19 +972,45 @@ int main (int argc, char **argv) {
                     exit (EXIT_FAILURE);
                 }
                 
-                /* the dReach will generate a .output file with the name <model_name>_<k_value>_i.output, where i starts from 0, for
-                 each possible path. It stops when it finds a sat path j, and the
-                 <model_name>_<k_value>_i.output file gives the final answer.
-                 If all the paths are unsat, the final .output one returns unsat.
-                 */
                 
-                // find out the final .output file returning the answer
-                int dReachi = 0; // the ith possiable path
+/* dReach will generate .output files with the names in such a format: ``<model_name>_<k>_i.output'', where k starts from the given lower bound, and i starts from 0. For each k within the given interval, dReach stops when it finds a sat path j, and returns a .output file with the name ``<model_name>_<current_k>_j.output'', in which it says ``delta-sat with delta = ...''. If all the paths are unsat, the final .output one returns “unsat”. 
+                 */
+
+/* In other words, I just want to know, if given a range for k, there are no sat paths for a given model, what will be the name for the output file concluding that it is unsat. so, only check the file whose name has the largest k and j. if it says “unsat”, it is an unsat case.*/
+
+/* For example, given k \in [0, 3], dreach will first explore paths with no jump. If no sat path with no jump can be found, dreach will then explore paths with 1 jump. That is, dreach never considers paths with a larger step unless all the possible paths with smaller steps are unsat. The whole running of dreach will stop once a sat path has been found. */
+
+               int k = atoi(argv[4]);
+	    
+
+/* So, if the file ``<modelfilename>_<kupper>_0.output’’ cannot be opened, which means that dreach stops before exploring the whole range for k, we can conclude that dreach has found a sat path. */
+
+/* But, I noticed that there are cases where there is no possible path with k_max jumps. So, by considering this kind of situations, we cannot simply use the above assumption. */
+
+/* So, we first need to find the max k with which at least one possible path that has been explored by dreach. */
+
+
+                
                 std::string nusuffix1;
                 nusuffix1.assign("_" + string(argv[4]) + "_");
                 std::string outputfilenam;
                 outputfilenam.assign(drhname + nusuffix1 + "0.output");
                 ifstream smtresfile (outputfilenam);
+
+		 while (!smtresfile.is_open()) {
+		     k--;
+		     smtresfile.close();
+                    smtresfile.clear();
+                    nusuffix1.assign("_" + std::to_string(k) + "_");
+                    outputfilenam.assign(drhname + nusuffix1 + "0.output");
+                    smtresfile.open(outputfilenam);
+           	 }
+
+/* then, 
+            find out the final .output file with the current k returning the answer
+            explore files in a forward manner */
+
+                int dReachi = 0; // the ith possiable path
                 std::string nusuffix2;
                 
                 while (smtresfile.is_open()) {
@@ -1006,20 +1033,20 @@ int main (int argc, char **argv) {
                     
                     std::string line;
                     getline(smtresfile, line);
-                    if (line == "sat") {
-                        result[tid] = 1;
-                        vector<string> simressat = simresfile;
-                        simressat.push_back("sat");
-                        //assgn_res.push_back(simressat);
-                        samres[tid] = simressat;
-                        simressat.clear();
-                        
-                    } else {
+                    if (line == "unsat") {
                         vector<string> simresunsat = simresfile;
                         simresunsat.push_back("unsat");
                         //assgn_res.push_back(simresunsat);
                         samres[tid] = simresunsat;
                         simresunsat.clear();
+                        
+                    } else {
+               		 result[tid] = 1;
+                        vector<string> simressat = simresfile;
+                        simressat.push_back("sat");
+                        //assgn_res.push_back(simressat);
+                        samres[tid] = simressat;
+                        simressat.clear();
                         
                     }
                     smtresfile.close();
