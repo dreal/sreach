@@ -790,7 +790,7 @@ int main (int argc, char **argv) {
     vector<Test *> myTests;	// list of tests to perform
     
 
-    if (argc != 6) {
+    if (argc != 5) {
         cout << USAGE << endl;
         cout << "Compiled for OpenMP. Maximum number of threads: " << omp_get_max_threads() << endl << endl;
         exit(EXIT_FAILURE);
