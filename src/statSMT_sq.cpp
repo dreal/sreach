@@ -753,7 +753,7 @@ int main (int argc, char **argv) {
         "where:\n"
         "      <testfile> is a text file containing a sequence of test specifications, give the path to it;\n"
         "      <prob_drh-modelfile> is the file name and path of the probilistical extension model of the dreach model;\n"
-        //"      <dReach> is the dReach executable, give the path to it;\n"
+        "      <dReach> is the dReach executable, give the path to it;\n"
         "   <k-unfolding_steps_for_dreach_model> is the given steps to unfold the probabilistic hybrid system;\n"
         "   <precision> indicates the delta value for dReach.\n\n"
         "Available test specifications: \n\n"
@@ -775,7 +775,7 @@ int main (int argc, char **argv) {
     bool alldone = false;		// all tests done
     bool done;
     unsigned long int satnum = 0;	// number of sat
-    unsigned long int unsatnum = 0;	// number of unsat
+    unsigned long int unsatnum = 0;
     unsigned int numtests = 0;	// number of tests to perform
 
     int ret;			// code returned by dReach
@@ -786,7 +786,7 @@ int main (int argc, char **argv) {
     vector<Test *> myTests;	// list of tests to perform
 
 
-    if (argc != 5) {
+    if (argc != 6) {
         cout << USAGE << endl;
         exit(EXIT_FAILURE);
     }
@@ -858,9 +858,9 @@ int main (int argc, char **argv) {
     /** for the third,forth, and fifth arguments: **/
     // build the command lines for dReach
     // still wait for the drh model after sampling according to the distributions
-    //std::string dReachpath = string(argv[3]) + " ";
-    std::string dReachpath = "dreach ";
-    std::string dReachopt1 = "-l 0 -u";
+    std::string dReachpath = string(argv[3]) + " ";
+    //std::string dReachpath = "dreach ";
+    std::string dReachopt1 = "-u";
     std::string dReachpara = " " + string(argv[4]);
     std::string dReachopt2 = " -precision=" + string(argv[5]);
     std::string dReachcomm = dReachpath + dReachopt1 + dReachpara + dReachopt2;
@@ -949,19 +949,35 @@ int main (int argc, char **argv) {
             }
             
             
-            /* the dReach will generate a .output file with the name <model_name>_<k_value>_i.output, where i starts from 0, for
-             each possible path. It stops when it finds a sat path j, and the
-             <model_name>_<k_value>_i.output file gives the final answer.
-             If all the paths are unsat, the final .output one returns unsat.
-             */
-            
-            // find out the final .output file returning the answer
-            int dReachi = 0; // the ith possiable path
-            std::string nusuffix1;
+            /* dReach will generate .output files with the names in such a format: ``<model_name>_<k>_i.output'', where k starts from the given lower bound, and i starts from 0. For each k within the given interval, dReach stops when it finds a sat path j, and returns a .output file with the name ``<model_name>_<current_k>_j.output'', in which it says ``delta-sat with delta = ...''. If all the paths are unsat, the final .output one returns “unsat”. 
+                 */
+
+/* In other words, I just want to know, if given a range for k, there are no sat paths for a given model, what will be the name for the output file concluding that it is unsat. so, only check the file whose name has the largest k and j. if it says “unsat”, it is an unsat case.*/
+
+/* For example, given k \in [0, 3], dreach will first explore paths with no jump. If no sat path with no jump can be found, dreach will then explore paths with 1 jump. That is, dreach never considers paths with a larger step unless all the possible paths with smaller steps are unsat. The whole running of dreach will stop once a sat path has been found. */
+
+	     std::string nusuffix1;
             nusuffix1.assign("_" + string(argv[4]) + "_");
             std::string outputfilenam;
             outputfilenam.assign("numodel" + nusuffix1 + "0.output");
             ifstream smtresfile (outputfilenam);
+
+
+/* So, if the file ``<modelfilename>_<kupper>_0.output’’ cannot be opened, which means that dreach stops before exploring the whole range for k, we can conclude that dreach has found a sat path. */
+            if (!smtresfile.is_open()) {
+		     satnum++;
+                    simressat = simresfile;
+                    simressat.push_back("sat");
+                    assgn_res.push_back(simressat);
+                    simressat.clear();
+		} else {
+
+
+/* otherwise
+            // find out the final .output file with k_max returning the answer
+            // explore files in a forward manner */
+
+            int dReachi = 0; // the ith possiable path
             std::string nusuffix2;
             
             while (smtresfile.is_open()) {
@@ -984,26 +1000,28 @@ int main (int argc, char **argv) {
                 //cout << "here" << endl;
                 std::string line;
                 getline(smtresfile, line);
-                if (line == "sat") {
-                    satnum++;
-                    simressat = simresfile;
-                    simressat.push_back("sat");
-                    assgn_res.push_back(simressat);
-                    simressat.clear();
+                if (line == "unsat") {
                     
-                } else {
                     unsatnum++;
                     simresunsat = simresfile;
                     simresunsat.push_back("unsat");
                     assgn_res.push_back(simresunsat);
                     simresunsat.clear();
+
+                } else {
                     
+                    satnum++;
+                    simressat = simresfile;
+                    simressat.push_back("sat");
+                    assgn_res.push_back(simressat);
+                    simressat.clear();
                 }
                 smtresfile.close();
             }else {
                 cout << "Unable to open the dReach returned file" << endl;
                 exit (EXIT_FAILURE);
             }
+         }
 
         }
         
