@@ -976,7 +976,7 @@ int main (int argc, char **argv) {
             
 
 
-            while (!smtresfile.is_open()) {
+            while (!smtresfile.is_open() && k >= 0) {
 		     k--;
 		     smtresfile.close();
                     smtresfile.clear();
@@ -984,6 +984,17 @@ int main (int argc, char **argv) {
                     outputfilenam.assign("numodel" + nusuffix1 + "0.output");
                     smtresfile.open(outputfilenam);
            }
+
+/* when dreach considers no paths at all, we will have k = -1 at this time.
+This means that this hybrid system instance is unsat. */
+
+            if (k == -1) {
+	            unsatnum++;
+                    simresunsat = simresfile;
+                    simresunsat.push_back("unsat");
+                    assgn_res.push_back(simresunsat);
+                    simresunsat.clear();
+            } else {
 
 /* then, 
             find out the final .output file with the current k returning the answer
@@ -1033,7 +1044,7 @@ int main (int argc, char **argv) {
                 cout << "Unable to open the dReach returned file" << endl;
                 exit (EXIT_FAILURE);
             }
-        
+           }
 
         }
         
