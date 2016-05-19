@@ -33,12 +33,13 @@ Usage
 
 The command line is as follows:
 
-     <testfile> <prob_drh-modelfile> <k-unfolding_steps_for_dreach_model> <precision>
+     <testfile> <prob_drh-modelfile> <dreach> <k-unfolding_steps_for_dreach_model> <precision>
 
 where:
 
  - ``<testfile>`` is a text file containing a sequence of test specifications, give the path to it
  - ``<prob_drh-modelfile>`` is the file name and path of the probabilistic extension model of the dreach model
+ - ``<dreach>`` is the exectuable dreach
  - ``<k-unfolding_steps_for_dreach_model>`` is the given steps to unfold the probabilistic hybrid system
  - ``<precision>`` is the given \delta for the \delta-decision procedure dReal/dReach
 
@@ -46,6 +47,7 @@ For example, try the following command (the path for dReach needs to be changed)
 
     ./sreach_sq(or sreach_para) ../statistical_test/test01 \\
                  ../models/bouncing_ball_with_drag.pdrh \\
+                 dreach \\
                  8 \\
                  0.001
 
