@@ -48,12 +48,14 @@
 #include <boost/lexical_cast.hpp>
 #include <ctime>
 #include <typeinfo>
+#include <unistd.h>
 #include "pdrh2drh.hpp"
 #include "presim.hpp"
 #include "prereplace.hpp"
 #include "evalrv.hpp"
 #include "simulation.hpp"
 #include "replace.hpp"
+
 
 using std::string;
 using std::endl;
@@ -956,26 +958,36 @@ int main (int argc, char **argv) {
 
 /* For example, given k \in [0, 3], dreach will first explore paths with no jump. If no sat path with no jump can be found, dreach will then explore paths with 1 jump. That is, dreach never considers paths with a larger step unless all the possible paths with smaller steps are unsat. The whole running of dreach will stop once a sat path has been found. */
 
-	     std::string nusuffix1;
+            int k = atoi(argv[4]);
+	    
+
+/* So, if the file ``<modelfilename>_<kupper>_0.output’’ cannot be opened, which means that dreach stops before exploring the whole range for k, we can conclude that dreach has found a sat path. */
+
+/* But, I noticed that there are cases where there is no possible path with k_max jumps. So, by considering this kind of situations, we cannot simply use the above assumption. */
+
+/* So, we first need to find the max k with which at least one possible path that has been explored by dreach. */
+
+
+            std::string nusuffix1;
             nusuffix1.assign("_" + string(argv[4]) + "_");
             std::string outputfilenam;
             outputfilenam.assign("numodel" + nusuffix1 + "0.output");
             ifstream smtresfile (outputfilenam);
+            
 
 
-/* So, if the file ``<modelfilename>_<kupper>_0.output’’ cannot be opened, which means that dreach stops before exploring the whole range for k, we can conclude that dreach has found a sat path. */
-            if (!smtresfile.is_open()) {
-		     satnum++;
-                    simressat = simresfile;
-                    simressat.push_back("sat");
-                    assgn_res.push_back(simressat);
-                    simressat.clear();
-		} else {
+            while (!smtresfile.is_open()) {
+		     k--;
+		     smtresfile.close();
+                    smtresfile.clear();
+                    nusuffix1.assign("_" + std::to_string(k) + "_");
+                    outputfilenam.assign("numodel" + nusuffix1 + "0.output");
+                    smtresfile.open(outputfilenam);
+           }
 
-
-/* otherwise
-            // find out the final .output file with k_max returning the answer
-            // explore files in a forward manner */
+/* then, 
+            find out the final .output file with the current k returning the answer
+            explore files in a forward manner */
 
             int dReachi = 0; // the ith possiable path
             std::string nusuffix2;
@@ -1021,7 +1033,7 @@ int main (int argc, char **argv) {
                 cout << "Unable to open the dReach returned file" << endl;
                 exit (EXIT_FAILURE);
             }
-         }
+        
 
         }
         
