@@ -786,7 +786,7 @@ int main (int argc, char **argv) {
     vector<Test *> myTests;	// list of tests to perform
 
 
-    if (argc != 6) {
+    if (argc != 5) {
         cout << USAGE << endl;
         exit(EXIT_FAILURE);
     }
