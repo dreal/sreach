@@ -49,6 +49,7 @@
 #include <ctime>
 #include <typeinfo>
 #include <unistd.h>
+#include <iterator>
 #include "pdrh2drh.hpp"
 #include "presim.hpp"
 #include "prereplace.hpp"
@@ -67,6 +68,7 @@ using std::istringstream;
 using std::ostringstream;
 using std::vector;
 using std::ifstream;
+using std::ofstream;
 using std::max;
 using std::min;
 
@@ -784,6 +786,8 @@ int main (int argc, char **argv) {
     unsigned long int satnum = 0;	// number of sat
     unsigned long int totnum = 0;	// number of total samples
     unsigned int numtests = 0;	// number of tests to perform
+    ofstream sat_samples ("parameter_values_deltasat.txt"); // record the delta-sat samples within the given (high) dimensional sample space
+    ofstream unsat_samples ("parameter_values_unsat.txt"); // record the unsat samples within the given (high) dimensional sample space
 
     vector<string> lines;		// variables for string processing
     string line, keyword;
@@ -1008,10 +1012,20 @@ int main (int argc, char **argv) {
 
 /* when dreach considers no paths at all, we will have k = -1 at this time.
 This means that this hybrid system instance is unsat. */
-
+            
             if (k == -1) {
 	            vector<string> simresunsat = simresfile;
                     simresunsat.push_back("unsat");
+                    int simresunsatsize = simresunsat.size();
+                    int simresunsatcounter = 0;
+                    while (simresunsatcounter < simresunsatsize - 1) {
+
+    			unsat_samples << simresunsat[simresunsatcounter] << " ";
+                       simresunsatcounter++;
+		     }
+                    unsat_samples << "\n";
+                    //std::ostream_iterator<std::string> output_iterator(unsat_samples, "\n");
+                    //std::copy(simresunsat.begin(), simresunsat.end(), output_iterator);
                     //assgn_res.push_back(simresunsat);
                     samres[tid] = simresunsat;
                     simresunsat.clear();
@@ -1048,6 +1062,17 @@ This means that this hybrid system instance is unsat. */
                     if (line == "unsat") {
                         vector<string> simresunsat = simresfile;
                         simresunsat.push_back("unsat");
+
+                        int simresunsatsize = simresunsat.size();
+                        int simresunsatcounter = 0;
+                        while (simresunsatcounter < simresunsatsize - 1) {
+
+    			      unsat_samples << simresunsat[simresunsatcounter] << " ";
+                            simresunsatcounter++;
+		         }
+                        unsat_samples << "\n";
+                        //std::ostream_iterator<std::string> output_iterator(unsat_samples, "\n");
+                        //std::copy(simresunsat.begin(), simresunsat.end(), output_iterator);
                         //assgn_res.push_back(simresunsat);
                         samres[tid] = simresunsat;
                         simresunsat.clear();
@@ -1056,6 +1081,17 @@ This means that this hybrid system instance is unsat. */
                		 result[tid] = 1;
                         vector<string> simressat = simresfile;
                         simressat.push_back("sat");
+
+                        int simressatsize = simressat.size();
+                        int simressatcounter = 0;
+                        while (simressatcounter < simressatsize - 1) {
+
+    			      sat_samples << simressat[simressatcounter] << " ";
+                             simressatcounter++;
+		         }
+                        sat_samples << "\n";
+                        //std::ostream_iterator<std::string> output_iterator(sat_samples, "\n");
+                        //std::copy(simressat.begin(), simressat.end(), output_iterator);
                         //assgn_res.push_back(simressat);
                         samres[tid] = simressat;
                         simressat.clear();
@@ -1082,6 +1118,7 @@ This means that this hybrid system instance is unsat. */
                 
                 // update assgn_res vector
                 for (unsigned long tidi = 0; tidi < samres.size(); ++tidi) {
+                    
                     assgn_res.push_back(samres[tidi]);
                     samres[tidi].clear();
                 }
@@ -1109,5 +1146,7 @@ This means that this hybrid system instance is unsat. */
     cout << "Number of processors: " << omp_get_num_procs() << endl;
     cout << "Number of threads: " << maxthreads << endl;
     //cout << "total combinations are" << assgn_res.size() << endl;
+    sat_samples.close();
+    unsat_samples.close();
   exit(EXIT_SUCCESS);
 }
