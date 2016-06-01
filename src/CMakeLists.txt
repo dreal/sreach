@@ -84,7 +84,7 @@ ${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES}
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.45.0 COMPONENTS regex)
+find_package(Boost 1.45.0 REQUIRED COMPONENTS regex)
 if(Boost_FOUND)
 include_directories(${Boost_INCLUDE_DIRS})
 set(EXTRA_LIBS ${Boost_LIBRARIES} ${EXTRA_LIBS})
