@@ -53,7 +53,8 @@ vector<string> split(string const & s)
     vector<string> rvandval;
     typedef boost::tokenizer<boost::char_separator<char> > tok_t;
 
-    boost::char_separator<char> sep(" ", "", boost::keep_empty_tokens);
+    //boost::char_separator<char> sep(" ", "", boost::keep_empty_tokens);
+    boost::char_separator<char> sep(" =+-*/^");
     tok_t tok(s, sep);
     for(tok_t::iterator i = tok.begin(); i!=tok.end(); ++i)
         rvandval.push_back(*i);
@@ -77,15 +78,18 @@ void replace (string const & olddrhfile, vector<string> & simresf){
          
                 string line1 = simresf[i];
                 vector<string> rvandval = split(line1);
+                string target0 = rvandval[0];
                 string target1 = "(" + rvandval[0] + " ";
                 string target2 = " " + rvandval[0] + " ";
                 string target3 = rvandval[0] + " ";
                 string target4 = " " + rvandval[0];
+                string replace0 = rvandval[1];
                 string replace1 = "(" + rvandval[1] + " ";
                 string replace2 = " " + rvandval[1] + " ";
                 string replace3 = rvandval[1] + " ";
                 string replace4 = " " + rvandval[1];
 
+                boost::replace_all(line2, target0, replace0);
                 boost::replace_all(line2, target1, replace1);
                 boost::replace_all(line2, target2, replace2);
                 boost::replace_all(line2, target3, replace3);
@@ -123,15 +127,18 @@ void replace (string const & olddrhfile, vector<string> & simresf, int tid){
                 
                 string line1 = simresf[i];
                 vector<string> rvandval = split(line1);
+                string target0 = rvandval[0];
                 string target1 = "(" + rvandval[0] + " ";
                 string target2 = " " + rvandval[0] + " ";
                 string target3 = rvandval[0] + " ";
                 string target4 = " " + rvandval[0];
+                string replace0 = rvandval[1];
                 string replace1 = "(" + rvandval[1] + " ";
                 string replace2 = " " + rvandval[1] + " ";
                 string replace3 = rvandval[1] + " ";
                 string replace4 = " " + rvandval[1];
                 
+                boost::replace_all(line2, target0, replace0);
                 boost::replace_all(line2, target1, replace1);
                 boost::replace_all(line2, target2, replace2);
                 boost::replace_all(line2, target3, replace3);
