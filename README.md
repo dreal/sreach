@@ -1,4 +1,4 @@
-``SReach`` is a Bounded Model Checker for hybrid systems with parametric uncertainty, and probabilistic hybrid automata with addtional randomness. It combines dreal/dreach and statistical analyzing methods.
+``SReach`` is a Bounded Model Checker for hybrid systems with parametric uncertainty, and probabilistic hybrid automata with additional randomness. It combines dreal/dreach and statistical analyzing methods.
 
 Installation
 ============
