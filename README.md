@@ -46,7 +46,7 @@ where:
 For example, try the following command (the path for dReach needs to be changed):
 
     ./sreach_sq(or sreach_para) ../statistical_test/test01 \\
-                 ../models/bouncing_ball_with_drag.pdrh \\
+                 ../models/02_bouncing_ball_with_drag.pdrh \\
                  dreach \\
                  8 \\
                  0.001
